@@ -373,9 +373,9 @@ class ImageProcessor:
             self.enhancement_frame.pack_forget()
 
     def test_image_enhancement(self):
-        center_folder = self.paths.get("center")
-        if not center_folder:
-            messagebox.showwarning("Warning", "Center folder is not selected.")
+        left_folder = self.paths.get("left")
+        if not left_folder:
+            messagebox.showwarning("Warning", "Left folder is not selected.\n Please select a left folder in the main panel.")
             return
 
         # Ensure the TempImages folder exists
@@ -388,14 +388,14 @@ class ImageProcessor:
             if os.path.isfile(file_path):
                 os.remove(file_path)
 
-        # Select a random image from the center folder
-        files = [f for f in os.listdir(center_folder) if os.path.isfile(os.path.join(center_folder, f))]
+        # Select a random image from the left folder
+        files = [f for f in os.listdir(left_folder) if os.path.isfile(os.path.join(left_folder, f))]
         if not files:
-            messagebox.showwarning("Warning", "No images found in the center folder.")
+            messagebox.showwarning("Warning", "No images found in the left folder.")
             return
 
         random_file = random.choice(files)
-        random_image_path = os.path.join(center_folder, random_file)
+        random_image_path = os.path.join(left_folder, random_file)
         temp_image_path = os.path.join(self.temp_folder, random_file)
 
         # Copy the selected image to the temp folder
