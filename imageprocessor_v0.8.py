@@ -168,8 +168,13 @@ class ImageProcessor:
             prefix1 = self.prefix1.get()
             prefix2 = self.prefix2.get()
             prefix3 = self.prefix3.get()
-            total_files = sum(len(os.listdir(path)) for path in self.paths.values() if path)
-            
+            total_files = sum(
+                len([f for f in os.listdir(path) 
+                    if not f.startswith('.') and os.path.isfile(os.path.join(path, f))])
+                for path in self.paths.values() if path
+            )
+            print(f"Total files: {total_files}")
+
             # Initialize progress bar for renaming
             self.progress_var.set(0)
             if self.enhancement_var.get():
@@ -240,35 +245,53 @@ class ImageProcessor:
 
     def apply_image_enhancement(self, renamed_images, start_index):
         total_files = len(renamed_images)
+        print(f"Total files for enhancement: {total_files}")
         current_progress = start_index
         
         for index, image_path in enumerate(renamed_images):
+            print(f"Processing image {index + 1}/{total_files}: {image_path}")
             img = cv2.imread(image_path)
-            if img is not None:
-                # Load the image using Pillow to access EXIF data
+            if img is None:
+                print(f"Error: Unable to read image at {image_path}")
+                continue  # Skip this image and move to the next one
+
+            # Load the image using Pillow to access EXIF data
+            try:
                 pil_image = Image.open(image_path)
                 exif_data = pil_image.info.get('exif')
+                if exif_data is None:
+                    print(f"Warning: No EXIF data found for image at {image_path}")
+            except Exception as e:
+                print(f"Error: Unable to open image with Pillow at {image_path}. Exception: {e}")
+                continue  # Skip this image and move to the next one
 
-                # Create an "Enhanced" folder in the same directory as the current image
-                enhanced_folder = os.path.join(os.path.dirname(image_path), "Enhanced")
-                if not os.path.exists(enhanced_folder):
-                    os.makedirs(enhanced_folder)
+            # Create an "Enhanced" folder in the same directory as the current image
+            enhanced_folder = os.path.join(os.path.dirname(image_path), "Enhanced")
+            if not os.path.exists(enhanced_folder):
+                os.makedirs(enhanced_folder)
 
-                # Apply CLAHE enhancement
-                enhanced_img_clahe = RecoverCLAHE(img)
-                temp_name_clahe = os.path.splitext(os.path.basename(image_path))[0] + '.jpg'
-                temp_path_clahe = os.path.join(enhanced_folder, temp_name_clahe)
-                cv2.imwrite(temp_path_clahe, enhanced_img_clahe)
+            # Apply CLAHE enhancement
+            enhanced_img_clahe = RecoverCLAHE(img)
+            temp_name_clahe = os.path.splitext(os.path.basename(image_path))[0] + '.jpg'
+            temp_path_clahe = os.path.join(enhanced_folder, temp_name_clahe)
+            cv2.imwrite(temp_path_clahe, enhanced_img_clahe)
 
-                # Re-open the enhanced image with Pillow to attach EXIF data
+            # Re-open the enhanced image with Pillow to attach EXIF data
+            try:
                 enhanced_pil_image = Image.open(temp_path_clahe)
-                enhanced_pil_image.save(temp_path_clahe, exif=exif_data)
-                
-                # Update progress
-                current_progress += 1
-                self.progress_var.set(current_progress)
-                self.progress_label.config(text=f"{int((current_progress / self.progress_bar['maximum']) * 100)}%")
-                self.progress_bar.update()
+                if exif_data:
+                    enhanced_pil_image.save(temp_path_clahe, exif=exif_data)
+                else:
+                    enhanced_pil_image.save(temp_path_clahe)
+            except Exception as e:
+                print(f"Error: Unable to save enhanced image with EXIF data at {temp_path_clahe}. Exception: {e}")
+                continue  # Skip this image and move to the next one
+
+            # Update progress
+            current_progress += 1
+            self.progress_var.set(current_progress)
+            self.progress_label.config(text=f"{int((current_progress / self.progress_bar['maximum']) * 100)}%")
+            self.progress_bar.update()
 
         # Ensure progress bar reflects the end of the process
         self.progress_var.set(self.progress_bar["maximum"])
