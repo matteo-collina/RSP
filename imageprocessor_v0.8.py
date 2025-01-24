@@ -113,6 +113,11 @@ class ImageProcessor:
         enhancement_checkbox = tk.Checkbutton(left_frame, text="Image Enhancement", variable=self.enhancement_var, command=self.toggle_enhancement_section)
         enhancement_checkbox.pack(pady=10)
 
+        # Add the checkbox for renaming images
+        self.rename_images_var = tk.BooleanVar(value=True) #set to True by default
+        self.rename_images_checkbox = tk.Checkbutton(left_frame, text="Rename Images", variable=self.rename_images_var)
+        self.rename_images_checkbox.pack(pady=10)
+
         # Create the run button
         run_button = tk.Button(left_frame, text="Process Images", command=self.process_images, width=15, height=2, font=("Arial", 14, "bold"))
         run_button.pack(pady=20, fill=tk.X, padx=10)
@@ -210,6 +215,22 @@ class ImageProcessor:
             messagebox.showerror("Error", f"An error occurred: {e}")
 
     def rename_files_in_directory(self, directory, prefix, prefix1, prefix2, prefix3, current_file, renamed_images):
+        #If rename files is not selected, the files are just added to the list
+        if not self.rename_images_var.get():
+            files = [(filename, os.path.getmtime(os.path.join(directory, filename))) for filename in os.listdir(directory)]
+            counter = 0
+            for filename, _ in files:
+                file_path = os.path.join(directory, filename)
+                renamed_images.append(file_path)
+                counter += 1
+                current_file += 1
+                self.progress_var.set(current_file)
+                self.progress_label.config(text=f"{int((current_file / self.progress_bar['maximum']) * 100)}%")
+                self.progress_bar.update()
+                
+            return current_file
+        
+        #If rename files is selected, the files are renamed and added to the list
         files = [(filename, os.path.getmtime(os.path.join(directory, filename))) for filename in os.listdir(directory)]
         files.sort(key=lambda x: x[1])  # Sort files by creation time
 
