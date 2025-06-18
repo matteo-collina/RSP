@@ -318,9 +318,15 @@ class ImageProcessor(QMainWindow):
         thread_label = QLabel("Processing Threads:")
         self.thread_spinbox = QSpinBox()
         self.thread_spinbox.setMinimum(1)
-        self.thread_spinbox.setMaximum(16)
-        self.thread_spinbox.setValue(4)  # Default to 4 threads
-        self.thread_spinbox.setToolTip("Number of threads to use for image enhancement")
+        self.thread_spinbox.setMaximum(32)
+        
+        # Set optimal default based on CPU count
+        import multiprocessing
+        cpu_count = multiprocessing.cpu_count()
+        optimal_threads = max(4, min(cpu_count - 2, 12))  # Leave 2 cores free, max 12
+        self.thread_spinbox.setValue(optimal_threads)
+        
+        self.thread_spinbox.setToolTip(f"Number of threads for image enhancement\nDetected {cpu_count} CPU cores\nRecommended: {optimal_threads} threads")
         thread_layout.addWidget(thread_label)
         thread_layout.addWidget(self.thread_spinbox)
         left_layout.addLayout(thread_layout)
