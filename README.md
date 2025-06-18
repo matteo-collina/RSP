@@ -49,6 +49,52 @@ Based on the data acquired, this script will refine the alignment of your  image
 
 ## Usage
 
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/yourusername/GPSP.git
+   cd GPSP
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Run the application:**
+   ```bash
+   python main.py
+   ```
+
+### Project Structure
+
+The application has been refactored into a modular structure for better maintainability:
+
+```
+GPSP/
+├── main.py                    # Entry point
+├── requirements.txt           # Dependencies
+├── config/
+│   └── settings.py           # Configuration constants
+├── src/
+│   ├── core/
+│   │   ├── file_manager.py   # File operations and renaming
+│   │   └── image_processor.py # Image processing logic
+│   ├── ui/
+│   │   ├── main_window.py    # Main application window
+│   │   ├── widgets.py        # Custom UI components
+│   │   └── dialogs.py        # Dialog windows
+│   ├── utils/
+│   │   └── ui_utils.py       # UI utility functions
+│   └── workers/
+│       └── processing_thread.py # Background processing
+├── assets/                   # Application assets
+└── TempImages/              # Temporary image storage
+```
+
+### Features
+
 ### Install GoPro script
 To install the script you have to simply scan the QR code provided. Then, put the GoPros in Photo mode, and turn on the intervalometer function. You are ready to go!
 

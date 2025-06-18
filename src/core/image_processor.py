@@ -1,0 +1,82 @@
+"""
+Core image processing functionality.
+"""
+
+import os
+import cv2
+from PIL import Image
+from src.core.image_enhancement import apply_clahe_enhancement
+from config.settings import VALID_IMAGE_EXTENSIONS
+
+
+class ImageProcessor:
+    """Handles individual image processing operations."""
+    
+    @staticmethod
+    def is_valid_image_file(filename):
+        """Check if file is a valid image file."""
+        return os.path.splitext(filename.lower())[1] in VALID_IMAGE_EXTENSIONS
+    
+    @staticmethod
+    def process_single_image(image_path):
+        """Process a single image with enhancement."""
+        try:
+            # Validate file
+            if not os.path.exists(image_path):
+                return False, f"File not found: {image_path}"
+            
+            if not os.path.isfile(image_path):
+                return False, f"Path is not a file: {image_path}"
+            
+            # Read image
+            img = cv2.imread(image_path)
+            if img is None:
+                return False, f"Could not read image (corrupted or unsupported format): {image_path}"
+            
+            # Get EXIF data
+            exif_data = ImageProcessor._get_exif_data(image_path)
+            
+            # Create enhanced folder
+            enhanced_folder = os.path.join(os.path.dirname(image_path), "Enhanced")
+            os.makedirs(enhanced_folder, exist_ok=True)
+            
+            # Apply enhancement
+            enhanced_img = apply_clahe_enhancement(img)
+            output_name = os.path.splitext(os.path.basename(image_path))[0] + '.jpg'
+            output_path = os.path.join(enhanced_folder, output_name)
+            
+            # Save enhanced image
+            success = cv2.imwrite(output_path, enhanced_img)
+            if not success:
+                return False, f"Failed to save enhanced image: {output_path}"
+            
+            # Preserve EXIF data
+            if exif_data:
+                ImageProcessor._preserve_exif_data(output_path, exif_data)
+            
+            return True, f"Successfully processed: {os.path.basename(image_path)}"
+            
+        except Exception as e:
+            return False, f"Error processing {image_path}: {str(e)}"
+    
+    @staticmethod
+    def _get_exif_data(image_path):
+        """Extract EXIF data from image."""
+        try:
+            pil_image = Image.open(image_path)
+            exif_data = pil_image.info.get('exif')
+            pil_image.close()  # Explicitly close to free resources
+            return exif_data
+        except Exception as e:
+            print(f"Warning: Could not read EXIF data from {image_path}: {e}")
+            return None
+    
+    @staticmethod
+    def _preserve_exif_data(image_path, exif_data):
+        """Preserve EXIF data in processed image."""
+        try:
+            enhanced_pil_image = Image.open(image_path)
+            enhanced_pil_image.save(image_path, exif=exif_data)
+            enhanced_pil_image.close()
+        except Exception as e:
+            print(f"Warning: Could not preserve EXIF data for {image_path}: {e}")
