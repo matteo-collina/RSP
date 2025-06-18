@@ -604,23 +604,48 @@ class ImageProcessor(QMainWindow):
             print(f"Warning: Could not display image {image_path}: {e}")
     
     def show_gopro_qr(self):
-        dialog = QMessageBox(self)
+        from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
+        
+        # Create custom dialog
+        dialog = QDialog(self)
         dialog.setWindowTitle("GoPro QR Code")
         dialog.setWindowIcon(self.windowIcon())
+        dialog.setModal(True)
         
-        # Load QR code image
+        # Create layout
+        layout = QVBoxLayout(dialog)
+        
+        # Load and display QR code image
         image_path = os.path.join(os.path.dirname(__file__), "gopro_qr_code.png")
         if os.path.isfile(image_path):
+            image_label = QLabel()
             pixmap = QPixmap(image_path)
-            scaled_pixmap = pixmap.scaled(250, 250, Qt.AspectRatioMode.KeepAspectRatio)
-            dialog.setIconPixmap(scaled_pixmap)
+            # Now you can make it as large as you want!
+            scaled_pixmap = pixmap.scaled(400, 400, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            image_label.setPixmap(scaled_pixmap)
+            image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            layout.addWidget(image_label)
         
-        text = ("SETTINGS\n\n"
-                "White-Balance: Auto\n\n\n"
-                "YOU NEED THE LABS FIRMWARE IN ORDER TO USE IT. PLEASE, REFER TO DOCUMENTATION.\n\n"
-                "PLEASE, REMEMBER TO TURN ON INTERVALOMETER FUNCTION ON THE GOPRO.")
+        # Add text
+        text_label = QLabel("SETTINGS\n\n"
+                        "White-Balance: Auto\n\n\n"
+                        "YOU NEED THE LABS FIRMWARE IN ORDER TO USE IT. PLEASE, REFER TO DOCUMENTATION.\n\n"
+                        "PLEASE, REMEMBER TO TURN ON INTERVALOMETER FUNCTION ON THE GOPRO.")
+        text_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        text_label.setWordWrap(True)
+        layout.addWidget(text_label)
         
-        dialog.setText(text)
+        # Add OK button
+        button_layout = QHBoxLayout()
+        ok_button = QPushButton("OK")
+        ok_button.clicked.connect(dialog.accept)
+        button_layout.addStretch()
+        button_layout.addWidget(ok_button)
+        button_layout.addStretch()
+        layout.addLayout(button_layout)
+        
+        # Set dialog size and show
+        dialog.resize(500, 600)  # Adjust size as needed
         dialog.exec()
     
     def show_about_info(self):
