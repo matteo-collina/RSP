@@ -16,7 +16,7 @@ from sceneRadianceCLAHE import RecoverCLAHE
 
 
 class ImageProcessingThread(QThread):
-    progress_updated = pyqtSignal(int, str)
+    progress_updated = pyqtSignal(int, int, str)  # current, maximum, percentage_text
     finished_processing = pyqtSignal(bool, str)
     
     def __init__(self, paths, prefixes, enhancement_enabled, rename_enabled):
@@ -35,28 +35,33 @@ class ImageProcessingThread(QThread):
             )
             
             if self.enhancement_enabled:
-                max_progress = total_files * 2
+                max_progress = total_files * 2  # rename + enhancement
             else:
-                max_progress = total_files
+                max_progress = total_files  # just rename
                 
-            current_file = 0
+            current_progress = 0
             renamed_images = []
             
+            # Rename/collect files phase
             for prefix, path in self.paths.items():
                 if path:
-                    current_file = self.rename_files_in_directory(
-                        path, prefix, current_file, renamed_images, max_progress
+                    current_progress = self.rename_files_in_directory(
+                        path, prefix, current_progress, renamed_images, max_progress
                     )
             
+            # Enhancement phase (if enabled)
             if self.enhancement_enabled:
-                self.apply_image_enhancement(renamed_images, current_file, max_progress)
+                self.apply_image_enhancement(renamed_images, current_progress, max_progress)
+            else:
+                # Ensure we reach 100% for rename-only operations
+                self.progress_updated.emit(max_progress, max_progress, "100%")
                 
             self.finished_processing.emit(True, "Processing completed successfully!")
             
         except Exception as e:
             self.finished_processing.emit(False, f"An error occurred: {e}")
     
-    def rename_files_in_directory(self, directory, prefix, current_file, renamed_images, max_progress):
+    def rename_files_in_directory(self, directory, prefix, current_progress, renamed_images, max_progress):
         files = [(filename, os.path.getmtime(os.path.join(directory, filename))) 
                 for filename in os.listdir(directory)]
         
@@ -92,24 +97,26 @@ class ImageProcessingThread(QThread):
                 renamed_images.append(file_path)
             
             counter += 1
-            current_file += 1
-            progress_percent = int((current_file / max_progress) * 100)
-            self.progress_updated.emit(current_file, f"{progress_percent}%")
+            current_progress += 1
+            progress_percent = int((current_progress / max_progress) * 100)
+            self.progress_updated.emit(current_progress, max_progress, f"{progress_percent}%")
         
-        return current_file
+        return current_progress
     
-    def apply_image_enhancement(self, renamed_images, start_index, max_progress):
-        current_progress = start_index
+    def apply_image_enhancement(self, renamed_images, start_progress, max_progress):
+        current_progress = start_progress
         
         for image_path in renamed_images:
             img = cv2.imread(image_path)
             if img is None:
+                current_progress += 1
                 continue
             
             try:
                 pil_image = Image.open(image_path)
                 exif_data = pil_image.info.get('exif')
             except Exception:
+                current_progress += 1
                 continue
             
             enhanced_folder = os.path.join(os.path.dirname(image_path), "Enhanced")
@@ -128,11 +135,11 @@ class ImageProcessingThread(QThread):
                 else:
                     enhanced_pil_image.save(temp_path_clahe)
             except Exception:
-                continue
+                pass
             
             current_progress += 1
             progress_percent = int((current_progress / max_progress) * 100)
-            self.progress_updated.emit(current_progress, f"{progress_percent}%")
+            self.progress_updated.emit(current_progress, max_progress, f"{progress_percent}%")
 
 
 class ImageProcessor(QMainWindow):
@@ -331,8 +338,9 @@ class ImageProcessor(QMainWindow):
             QMessageBox.critical(self, "Error", f"An error occurred: {e}")
             self.process_btn.setEnabled(True)
     
-    def update_progress(self, value, text):
-        self.progress_bar.setValue(value)
+    def update_progress(self, current, maximum, text):
+        self.progress_bar.setMaximum(maximum)
+        self.progress_bar.setValue(current)
         self.progress_label.setText(text)
     
     def processing_finished(self, success, message):
