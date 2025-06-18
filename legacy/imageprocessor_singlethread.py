@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                             QFrame, QTextEdit, QMenuBar, QMenu)
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QPixmap, QIcon, QFont, QAction
-from sceneRadianceCLAHE import RecoverCLAHE
+from legacy.sceneRadianceCLAHE import RecoverCLAHE
 
 
 class ImageProcessingThread(QThread):
