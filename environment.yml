@@ -1,0 +1,12 @@
+name: GPSP
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.8
+  - numpy>=1.21.0
+  - opencv>=4.7.0
+  - pillow>=9.0.0
+  - pip
+  - pip:
+    - PyQt6>=6.4.0

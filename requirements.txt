@@ -1,0 +1,8 @@
+# Image Processor Requirements
+# Core GUI framework
+PyQt6>=6.4.0
+
+# Image processing libraries
+opencv-python>=4.7.0
+numpy>=1.21.0
+Pillow>=9.0.0
