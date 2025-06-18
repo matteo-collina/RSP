@@ -5,6 +5,7 @@ import shutil
 import cv2
 import numpy as np
 import webbrowser
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
 from PIL import Image
@@ -19,7 +20,7 @@ from sceneRadianceCLAHE import RecoverCLAHE
 
 class ImageProcessingThread(QThread):
     progress_updated = pyqtSignal(int, int, str)  # current, maximum, percentage_text
-    finished_processing = pyqtSignal(bool, str)
+    finished_processing = pyqtSignal(bool, str, float)  # success, message, processing_time
     
     def __init__(self, paths, prefixes, enhancement_enabled, rename_enabled, num_threads=4):
         super().__init__()
@@ -29,8 +30,12 @@ class ImageProcessingThread(QThread):
         self.rename_enabled = rename_enabled
         self.num_threads = num_threads
         self.progress_lock = Lock()  # Thread-safe progress updates
+        self.start_time = None
         
     def run(self):
+        # Record start time
+        self.start_time = time.time()
+        
         try:
             total_files = sum(
                 len([f for f in os.listdir(path) 
@@ -71,11 +76,14 @@ class ImageProcessingThread(QThread):
             else:
                 # Ensure we reach 100% for rename-only operations
                 self.progress_updated.emit(max_progress, max_progress, "100%")
-                
-            self.finished_processing.emit(True, "Processing completed successfully!")
+            
+            # Calculate processing time
+            processing_time = time.time() - self.start_time
+            self.finished_processing.emit(True, "Processing completed successfully!", processing_time)
             
         except Exception as e:
-            self.finished_processing.emit(False, f"An error occurred: {e}")
+            processing_time = time.time() - self.start_time if self.start_time else 0
+            self.finished_processing.emit(False, f"An error occurred: {e}", processing_time)
     
     def process_files_in_directory(self, directory, prefix, current_progress, processed_images, max_progress):
         """Process (and optionally rename) files in directory"""
@@ -399,6 +407,20 @@ class ImageProcessor(QMainWindow):
         
         self.enhancement_frame.hide()
         main_layout.addWidget(self.enhancement_frame)
+    
+    def format_time(self, seconds):
+        """Format time in seconds to a human-readable string"""
+        if seconds < 60:
+            return f"{seconds:.1f} seconds"
+        elif seconds < 3600:
+            minutes = int(seconds // 60)
+            remaining_seconds = seconds % 60
+            return f"{minutes}m {remaining_seconds:.1f}s"
+        else:
+            hours = int(seconds // 3600)
+            minutes = int((seconds % 3600) // 60)
+            remaining_seconds = seconds % 60
+            return f"{hours}h {minutes}m {remaining_seconds:.1f}s"
         
     def browse_directory(self, prefix):
         directory = QFileDialog.getExistingDirectory(self, f"Select {prefix} directory")
@@ -485,12 +507,18 @@ class ImageProcessor(QMainWindow):
         self.progress_bar.setValue(current)
         self.progress_label.setText(text)
     
-    def processing_finished(self, success, message):
+    def processing_finished(self, success, message, processing_time):
         self.process_btn.setEnabled(True)
+        
+        # Format the time nicely
+        time_str = self.format_time(processing_time)
+        
         if success:
-            QMessageBox.information(self, "Success", message)
+            complete_message = f"{message}\n\nProcessing time: {time_str}"
+            QMessageBox.information(self, "Success", complete_message)
         else:
-            QMessageBox.critical(self, "Error", message)
+            complete_message = f"{message}\n\nTime elapsed: {time_str}"
+            QMessageBox.critical(self, "Error", complete_message)
     
     def test_image_enhancement(self):
         left_folder = self.paths.get("left")
