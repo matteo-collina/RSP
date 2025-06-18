@@ -56,7 +56,7 @@ When the GoPros turn on, you will see some values on the main scene. This means 
 
 IMAGE
 
-**NB: To scan the QR code the Lab version of the GoPro firmware needs to be installed. GoPro Labs currently supports HERO12/11/10/9/8/7 Black, HERO11 Black Mini, and HERO5 Session.**
+**NB: To scan the QR code the Lab version of the GoPro firmware needs to be installed. GoPro Labs currently supports HERO13/12/11/10/9/8/7 Black, HERO11 Black Mini, and HERO5 Session.**
 
 *Please refere to the [GoPro Labs website](https://community.gopro.com/s/article/GoPro-Labs?language=en_US) on how to install the firmware on your GoPros. It requires to download and copy a zip file in your micro-sd and reboot the camera.*
 
