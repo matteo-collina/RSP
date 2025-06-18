@@ -20,10 +20,10 @@ GPSP take advantage of the stereo-vision to simply the production of scaled phot
 
 GPSP is composed of 4 elements:
 
-1. A 2 GoPros array *(3 supported)*
+1. A GoPros array *(up to 3 supported)*
 2. A GoPros Sync script
 3. A data manager and Image Enhancment software
-4. A Metashape script to scale the model
+4. A series of Metashape scripts to scale the model
 
 ### 1. GoPros Array
 

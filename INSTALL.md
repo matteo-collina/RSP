@@ -20,7 +20,7 @@ conda activate GPSP
 
 3. Run the application:
 ```bash
-python imageprocessor.py
+python main.py
 ```
 4. When you're done using the application:
 ```bash
@@ -43,21 +43,7 @@ pip install -r requirements.txt
 
 2. Run the application:
 ```bash
-python imageprocessor.py
+python main.py
 ```
 
-## Required Files
-
-Make sure these files are in your project directory:
-- `imageprocessor.py` (your main application file)
-- `sceneRadianceCLAHE.py` (custom image processing module)
-- `requirements.txt` (Python dependencies)
-- `environment.yml` (Conda environment specification)
-
-
-### Platform-specific Notes:
-
-- **Windows**: May need Visual C++ redistributables for OpenCV
-- **macOS**: May need to install additional system dependencies
-- **Linux**: May need to install system packages for GUI applications
 
