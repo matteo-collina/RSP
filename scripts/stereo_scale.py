@@ -1,13 +1,11 @@
 import Metashape
 
-def process_metashape_script(distance_value, optimize_cameras, clean_scalebars, threshold_value):
+def process_metashape_script(distance_value, optimize_cameras):
     # Get the active chunk
     chunk = Metashape.app.document.chunk
 
     # Get all regular cameras in the chunk
     cameras = [camera for camera in chunk.cameras if camera.type == Metashape.Camera.Type.Regular]
-
-    deleted_scalebars_count = 0
 
     # Check if there are any cameras
     if cameras:
@@ -37,38 +35,20 @@ def process_metashape_script(distance_value, optimize_cameras, clean_scalebars, 
         # Update the chunk to reflect the changes
         chunk.updateTransform()
         
-        # Count the total number of scalebars before cleaning
+        # Count the total number of scalebars
         total_scalebars_count = len(chunk.scalebars)
-        
-        # Clean scalebars based on threshold value if requested
-        if clean_scalebars:
-            scalebars_to_delete = []
-            for scalebar in chunk.scalebars:
-                if scalebar.error > threshold_value:
-                    scalebars_to_delete.append(scalebar)
-            
-            deleted_scalebars_count = len(scalebars_to_delete)
-            for scalebar in scalebars_to_delete:
-                chunk.removeScalebar(scalebar)
         
         # Optimize cameras if requested
         if optimize_cameras:
             chunk.optimizeCameras()
 
-        # Calculate the average error of the remaining scalebars
-        total_error = sum(scalebar.error for scalebar in chunk.scalebars)
-        average_error = total_error / len(chunk.scalebars) if chunk.scalebars else 0
-        
-        #Prepare the summary message
-        summary_message = (
-            f"Total number of scalebars found: {total_scalebars_count}\n"
-            f"Number of scalebars deleted: {deleted_scalebars_count}\n"
-            f"Average error of remaining scalebars: {average_error:.4f} meters"
-        )
+        # Prepare the summary message
+        summary_message = f"Total number of scalebars created: {total_scalebars_count}"
         
         Metashape.app.messageBox(summary_message)
     else:
         print("No matching cameras found in the chunk.")
+
 
 def main():
     # Ask user for distance value
@@ -77,17 +57,8 @@ def main():
     # Ask user whether to optimize cameras
     optimize_cameras = Metashape.app.getBool("Do you want to optimize cameras after alignment?")
     
-    # Ask user whether to clean scalebars
-    clean_scalebars = Metashape.app.getBool("Do you want to clean scalebars?")
-    
-    # If cleaning is selected, get the threshold value
-    if clean_scalebars:
-        threshold_value = Metashape.app.getFloat("Enter error threshold for scalebars (m):", 0.01)
-    else:
-        threshold_value = 15000.0
-    
     # Call the Metashape processing function with user inputs
-    process_metashape_script(distance_value, optimize_cameras, clean_scalebars, threshold_value)
+    process_metashape_script(distance_value, optimize_cameras,)
 
 if __name__ == "__main__":
     main()
