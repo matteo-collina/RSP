@@ -139,7 +139,7 @@ Total measurements: {len(distances)}
 Unique measurements: {len(unique_distances)}
 
 BASELINE DISTANCE:
-Median: {median_distance:.6f} m  ← RECOMMENDED
+Median: {median_distance:.6f} m  <- RECOMMENDED
 Mean: {mean_distance:.6f} m
 Standard deviation: {std_dev:.6f} m
 Range: {min_distance:.6f} m to {max_distance:.6f} m
@@ -254,7 +254,7 @@ def main():
         print(f"Total measurements: {len(distances)}")
         print(f"Unique measurements: {len(unique_distances)}")
         print(f"")
-        print(f"MEDIAN BASELINE DISTANCE: {median_distance:.6f} m  ← RECOMMENDED")
+        print(f"MEDIAN BASELINE DISTANCE: {median_distance:.6f} m  <- RECOMMENDED")
         print(f"Mean distance:            {mean_distance:.6f} m")
         print(f"Standard deviation:       {std_dev:.6f} m")
         print(f"Range: {min_distance:.6f} m to {max_distance:.6f} m")
@@ -269,9 +269,9 @@ def main():
         print(f"Coefficient of variation: {cv:.2f}%")
         
         if cv < 2.0:
-            print("✓ Excellent consistency (CV < 2%)")
+            print("Excellent consistency (CV < 2%)")
         elif cv < 5.0:
-            print("✓ Good consistency (CV < 5%)")
+            print("Good consistency (CV < 5%)")
         elif cv < 10.0:
             print("Moderate consistency (CV < 10%) - consider recalibration")
         else:
