@@ -120,6 +120,14 @@ class ImageProcessor(QMainWindow):
             # Get number of threads
             num_threads = self.left_panel.thread_spinbox.value()
             
+            # Get sorting method
+            sort_methods = {
+                0: "exif",     # "EXIF Date Taken (Recommended)"
+                1: "filename", # "Filename (Alphabetical)"
+                2: "mtime"     # "File Modification Time"
+            }
+            sort_method = sort_methods.get(self.left_panel.sorting_combo.currentIndex(), "exif")
+            
             # Check if any processing will be done
             if (not self.left_panel.enhancement_checkbox.isChecked() and 
                 not self.left_panel.rename_checkbox.isChecked()):
@@ -141,7 +149,8 @@ class ImageProcessor(QMainWindow):
                 prefixes,
                 self.left_panel.enhancement_checkbox.isChecked(),
                 self.left_panel.rename_checkbox.isChecked(),
-                num_threads
+                num_threads,
+                sort_method
             )
             self.processing_thread.progress_updated.connect(self.update_progress)
             self.processing_thread.finished_processing.connect(self.processing_finished)

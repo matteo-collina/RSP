@@ -8,7 +8,7 @@ import shutil
 import cv2
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                             QPushButton, QLineEdit, QFileDialog, QCheckBox, 
-                            QProgressBar, QSpinBox)
+                            QProgressBar, QSpinBox, QComboBox)
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QPixmap, QFont
 
@@ -110,6 +110,23 @@ class LeftPanel(QWidget):
         self.rename_checkbox.setChecked(True)
         layout.addWidget(self.rename_checkbox)
         
+        # Sorting method selection
+        sorting_layout = QHBoxLayout()
+        sorting_label = QLabel("Sort images by:")
+        self.sorting_combo = QComboBox()
+        self.sorting_combo.addItems([
+            "EXIF Date Taken (Recommended)", 
+            "Filename (Alphabetical)", 
+            "File Modification Time"
+        ])
+        self.sorting_combo.setToolTip("Choose how to sort images before renaming:\n"
+                                    "• EXIF Date Taken: Uses camera timestamp (most accurate)\n"
+                                    "• Filename: Alphabetical order\n"
+                                    "• File Modification Time: When file was last modified")
+        sorting_layout.addWidget(sorting_label)
+        sorting_layout.addWidget(self.sorting_combo)
+        layout.addLayout(sorting_layout)
+        
         # Process button
         self.process_btn = QPushButton("Process Images")
         self.process_btn.setFont(QFont("Arial", 14, QFont.Weight.Bold))
@@ -193,9 +210,9 @@ class RightPanel(QWidget):
                 os.remove(file_path)
         
         # Select random image
-        files = [f for f in os.listdir(left_folder) 
-                if os.path.isfile(os.path.join(left_folder, f)) and 
-                ImageProcessor.is_valid_image_file(f)]
+        from src.core.file_manager import FileManager
+        file_data = FileManager.get_image_files_with_timestamps(left_folder, "filename")
+        files = [filename for filename, _ in file_data]
         
         if not files:
             from src.ui.dialogs import show_message_box

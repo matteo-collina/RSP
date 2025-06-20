@@ -18,13 +18,14 @@ class ImageProcessingThread(QThread):
     progress_updated = pyqtSignal(int, int, str)  # current, maximum, percentage_text
     finished_processing = pyqtSignal(bool, str, float)  # success, message, processing_time
     
-    def __init__(self, paths, prefixes, enhancement_enabled, rename_enabled, num_threads=4):
+    def __init__(self, paths, prefixes, enhancement_enabled, rename_enabled, num_threads=4, sort_method="exif"):
         super().__init__()
         self.paths = paths
         self.prefixes = prefixes
         self.enhancement_enabled = enhancement_enabled
         self.rename_enabled = rename_enabled
         self.num_threads = num_threads
+        self.sort_method = sort_method  # 'exif', 'filename', or 'mtime'
         self.progress_lock = Lock()  # Thread-safe progress updates
         self.start_time = None
     
@@ -82,17 +83,17 @@ class ImageProcessingThread(QThread):
         total = 0
         for path in self.paths.values():
             if path and os.path.exists(path):
-                files = FileManager.get_image_files_with_timestamps(path)
+                files = FileManager.get_image_files_with_timestamps(path, self.sort_method)
                 total += len(files)
         return total
     
     def _process_directory(self, directory, prefix, current_progress, processed_images, max_progress):
         """Process (and optionally rename) files in directory"""
         try:
-            files = FileManager.get_image_files_with_timestamps(directory)
+            files = FileManager.get_image_files_with_timestamps(directory, self.sort_method)
             
             if self.rename_enabled:
-                files.sort(key=lambda x: x[1])  # Sort by modification time
+                files.sort(key=lambda x: x[1])  # Sort by timestamp/filename
             
             counter = 0
             for filename, _ in files:
