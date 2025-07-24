@@ -7,7 +7,7 @@ import multiprocessing
 
 # Application metadata
 APP_NAME = "GPSP Image Processor"
-APP_VERSION = "0.1.0"
+APP_VERSION = "0.2.0-dev"
 APP_DATE = "July 2025"
 CONTACT_EMAIL = "matteo.collina@vuw.ac.nz"
 
