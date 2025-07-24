@@ -61,7 +61,8 @@ class LeftPanel(QWidget):
         self.thread_spinbox.setValue(OPTIMAL_THREADS)
         self.thread_spinbox.setToolTip(f"Number of threads for image enhancement\n"
                                      f"Detected {DEFAULT_CPU_COUNT} CPU cores\n"
-                                     f"Recommended: {OPTIMAL_THREADS} threads")
+                                     f"Default: {OPTIMAL_THREADS} threads (cores - 2)\n"
+                                     f"Recommended to leave 2 cores free for system")
         thread_layout.addWidget(thread_label)
         thread_layout.addWidget(self.thread_spinbox)
         layout.addLayout(thread_layout)

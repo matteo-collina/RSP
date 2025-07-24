@@ -17,7 +17,7 @@ TEMP_FOLDER = "TempImages"
 
 # Processing defaults
 DEFAULT_CPU_COUNT = multiprocessing.cpu_count()
-OPTIMAL_THREADS = max(4, min(DEFAULT_CPU_COUNT - 2, 12))
+OPTIMAL_THREADS = max(2, DEFAULT_CPU_COUNT - 2)  # Use cores-2, minimum 2 threads
 MAX_THREADS = 32
 MIN_THREADS = 1
 
