@@ -141,7 +141,7 @@ class ImageProcessor(QMainWindow):
             
             # Reset progress bar
             self.left_panel.progress_bar.setValue(0)
-            self.left_panel.progress_label.setText("0%")
+            self.left_panel.status_label.setText("Starting...")
             
             # Start processing thread
             self.processing_thread = ImageProcessingThread(
@@ -160,15 +160,16 @@ class ImageProcessor(QMainWindow):
             show_message_box(self, "Error", f"An error occurred: {e}", "critical")
             self.left_panel.process_btn.setEnabled(True)
     
-    def update_progress(self, current, maximum, text):
-        """Update the progress bar and label."""
+    def update_progress(self, current, maximum, status_text):
+        """Update the progress bar and status."""
         self.left_panel.progress_bar.setMaximum(maximum)
         self.left_panel.progress_bar.setValue(current)
-        self.left_panel.progress_label.setText(text)
+        self.left_panel.status_label.setText(status_text)
     
     def processing_finished(self, success, message, processing_time):
         """Handle the completion of image processing."""
         self.left_panel.process_btn.setEnabled(True)
+        self.left_panel.status_label.setText("Ready")
         
         # Format the time nicely
         time_str = format_time(processing_time)

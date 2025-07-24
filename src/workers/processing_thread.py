@@ -15,7 +15,7 @@ from src.core.file_manager import FileManager
 class ImageProcessingThread(QThread):
     """Background thread for processing images."""
     
-    progress_updated = pyqtSignal(int, int, str)  # current, maximum, percentage_text
+    progress_updated = pyqtSignal(int, int, str)  # current, maximum, status_text
     finished_processing = pyqtSignal(bool, str, float)  # success, message, processing_time
     
     def __init__(self, paths, prefixes, enhancement_enabled, rename_enabled, num_threads=4, sort_method="exif"):
@@ -68,7 +68,7 @@ class ImageProcessingThread(QThread):
                     print("Warning: No valid images found for enhancement")
             else:
                 # Ensure we reach 100% for rename-only operations
-                self.progress_updated.emit(max_progress, max_progress, "100%")
+                self.progress_updated.emit(max_progress, max_progress, "Renaming complete")
             
             # Calculate processing time
             processing_time = time.time() - self.start_time
@@ -110,8 +110,8 @@ class ImageProcessingThread(QThread):
                 
                 counter += 1
                 current_progress += 1
-                progress_percent = int((current_progress / max_progress) * 100)
-                self.progress_updated.emit(current_progress, max_progress, f"{progress_percent}%")
+                status_text = f"Processing {prefix} images" if self.rename_enabled else f"Collecting {prefix} images"
+                self.progress_updated.emit(current_progress, max_progress, status_text)
         
         except Exception as e:
             print(f"Error processing directory {directory}: {e}")
@@ -144,5 +144,4 @@ class ImageProcessingThread(QThread):
                 # Thread-safe progress update
                 with self.progress_lock:
                     current_progress += 1
-                    progress_percent = int((current_progress / max_progress) * 100)
-                    self.progress_updated.emit(current_progress, max_progress, f"{progress_percent}%")
+                    self.progress_updated.emit(current_progress, max_progress, "Enhancing images")

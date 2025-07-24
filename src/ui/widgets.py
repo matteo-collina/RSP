@@ -134,12 +134,13 @@ class LeftPanel(QWidget):
         self.process_btn.clicked.connect(self.parent.process_images)
         layout.addWidget(self.process_btn)
         
-        # Progress bar
-        self.progress_label = QLabel("0%")
-        self.progress_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.progress_label)
+        # Progress status and bar
+        self.status_label = QLabel("Ready")
+        self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.status_label)
         
         self.progress_bar = QProgressBar()
+        self.progress_bar.setTextVisible(True)  # Ensure percentage is visible
         layout.addWidget(self.progress_bar)
         
         layout.addStretch()
