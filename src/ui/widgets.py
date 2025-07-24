@@ -60,11 +60,21 @@ class LeftPanel(QWidget):
         self.thread_spinbox.setMaximum(MAX_THREADS)
         self.thread_spinbox.setValue(OPTIMAL_THREADS)
         self.thread_spinbox.setToolTip(f"Number of threads for image enhancement\n"
-                                     f"Detected {DEFAULT_CPU_COUNT} CPU cores\n"
-                                     f"Default: {OPTIMAL_THREADS} threads (cores - 2)\n"
-                                     f"Recommended to leave 2 cores free for system")
+                                     f"Detected {DEFAULT_CPU_COUNT} logical CPU cores\n"
+                                     f"Default: {OPTIMAL_THREADS} threads (optimized for image processing)\n"
+                                     f"Apple Silicon: Uses ALL Performance cores\n"
+                                     f"Intel/AMD: Uses estimated physical cores (no hyperthreading)")
+        
+        # AUTO button to reset to optimal threads
+        auto_btn = QPushButton("AUTO")
+        auto_btn.setMaximumWidth(60)
+        auto_btn.setToolTip(f"Reset to optimal thread count ({OPTIMAL_THREADS} threads)\n"
+                           f"Automatically optimized for your CPU architecture")
+        auto_btn.clicked.connect(lambda: self.thread_spinbox.setValue(OPTIMAL_THREADS))
+        
         thread_layout.addWidget(thread_label)
         thread_layout.addWidget(self.thread_spinbox)
+        thread_layout.addWidget(auto_btn)
         layout.addLayout(thread_layout)
         
         # Directory selection

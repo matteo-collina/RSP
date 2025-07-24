@@ -17,7 +17,48 @@ TEMP_FOLDER = "TempImages"
 
 # Processing defaults
 DEFAULT_CPU_COUNT = multiprocessing.cpu_count()
-OPTIMAL_THREADS = max(2, DEFAULT_CPU_COUNT - 2)  # Use cores-2, minimum 2 threads
+
+# Smart thread calculation based on CPU architecture
+def calculate_optimal_threads():
+    """Calculate optimal thread count for CPU-intensive image processing."""
+    import platform
+    import subprocess
+    
+    logical_cores = multiprocessing.cpu_count()
+    
+    # Apple Silicon - detect and use ALL Performance cores
+    if platform.system() == 'Darwin' and platform.machine() == 'arm64':
+        try:
+            # Try to get Performance core count from system_profiler
+            result = subprocess.run(['system_profiler', 'SPHardwareDataType'], 
+                                  capture_output=True, text=True, timeout=10)
+            if result.returncode == 0:
+                for line in result.stdout.split('\n'):
+                    if 'Total Number of Cores:' in line and 'performance' in line:
+                        # Parse "16 (12 performance and 4 efficiency)"
+                        parts = line.split('(')[1].split()
+                        p_cores = int(parts[0])
+                        # Use ALL Performance cores - they're designed for intensive tasks
+                        return p_cores
+        except Exception:
+            pass
+        
+        # Fallback: estimate based on known Apple Silicon configs
+        if logical_cores >= 16:      # M3 Max/M2 Max: typically 12P + 4E or 8P + 8E
+            return logical_cores - 4  # Conservative estimate: assume 4 E-cores
+        elif logical_cores >= 12:   # M2 Pro: typically 8P + 4E  
+            return logical_cores - 4
+        else:                       # M1/M2/M3: typically 4P + 4E
+            return logical_cores // 2
+    
+    # Intel/AMD processors - assume hyperthreading, use physical cores
+    else:
+        # Most Intel/AMD use hyperthreading (2 logical per physical)
+        # For CPU-intensive tasks, use estimated physical cores
+        estimated_physical = max(1, logical_cores // 2)
+        return estimated_physical
+
+OPTIMAL_THREADS = calculate_optimal_threads()
 MAX_THREADS = 32
 MIN_THREADS = 1
 
