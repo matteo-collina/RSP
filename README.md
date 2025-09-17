@@ -22,7 +22,7 @@ GPSP is composed of 4 elements:
 
 1. A GoPros array *(up to 3 supported)*
 2. A GoPros Sync script
-3. A data manager and Image Enhancment software
+3. A data manager and Image Enhancement software (GUI and CLI)
 4. A series of Metashape scripts to scale the model
 
 ### 1. GoPros Array
@@ -37,7 +37,30 @@ The GoPro sync script needs to be executed in all the GoPros of the array and ke
 
 ### 3. GPSP Data Manager software
 
-When you download the images on your computer, just copy the file from each GoPro in different folders (for instance "left" and "right"). Data Manager, will organize the dataset, improve the image quality and prepare the dataset to be processed in Agisoft Metashape Pro.
+When you download the images on your computer, just copy the file from each GoPro in different folders (for instance "left" and "right"). Data Manager will organize the dataset, improve the image quality and prepare the dataset to be processed in Agisoft Metashape Pro.
+
+**Easy Usage:** 
+```bash
+python gpsp.py                    # Launch GUI (no arguments)
+python gpsp.py [CLI options]      # Run CLI mode (any arguments)
+```
+
+**GUI Mode:** Launch the graphical interface for interactive processing:
+```bash
+python gpsp.py
+```
+
+**CLI Mode:** Use command-line arguments for automated batch processing:
+```bash
+python gpsp.py --left /path/to/left --right /path/to/right --prefix1 "dive1" --rename true --enhance true
+```
+
+Available CLI options:
+- `--prefix1/2/3`: Add prefixes for file naming
+- `--thread`: Number of processing threads (or "auto" for optimal, unlimited max)  
+- `--center/left/right`: Paths to image directories
+- `--rename true/false`: Whether to rename files with prefixes
+- `--enhance true/false`: Whether to apply image enhancement
 
 IMAGE
 

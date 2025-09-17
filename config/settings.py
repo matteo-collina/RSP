@@ -59,8 +59,10 @@ def calculate_optimal_threads():
         return estimated_physical
 
 OPTIMAL_THREADS = calculate_optimal_threads()
-MAX_THREADS = 32
 MIN_THREADS = 1
+
+# For GUI, we still want a reasonable upper limit to prevent UI issues
+GUI_MAX_THREADS = 32
 
 # Asset paths
 ASSETS_DIR = "assets"

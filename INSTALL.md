@@ -20,7 +20,8 @@ conda activate GPSP
 
 3. Run the application:
 ```bash
-python main.py
+python gpsp.py              # GUI mode (no arguments)
+python gpsp.py --help       # CLI mode help
 ```
 4. When you're done using the application:
 ```bash
@@ -43,7 +44,8 @@ pip install -r requirements.txt
 
 2. Run the application:
 ```bash
-python main.py
+python gpsp.py              # GUI mode (no arguments)  
+python gpsp.py --help       # CLI mode help
 ```
 
 

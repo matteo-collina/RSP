@@ -13,7 +13,7 @@ from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QPixmap, QFont
 
 from config.settings import (UNIVERSITY_LOGO, LEFT_PANEL_WIDTH, IMAGE_PREVIEW_MIN_WIDTH,
-                           IMAGE_PREVIEW_MIN_HEIGHT, OPTIMAL_THREADS, MAX_THREADS, MIN_THREADS,
+                           IMAGE_PREVIEW_MIN_HEIGHT, OPTIMAL_THREADS, GUI_MAX_THREADS, MIN_THREADS,
                            DEFAULT_CPU_COUNT, TEMP_FOLDER)
 from src.core.image_processor import ImageProcessor
 from src.core.image_enhancement import apply_clahe_enhancement
@@ -57,7 +57,7 @@ class LeftPanel(QWidget):
         thread_label = QLabel("Processing Threads:")
         self.thread_spinbox = QSpinBox()
         self.thread_spinbox.setMinimum(MIN_THREADS)
-        self.thread_spinbox.setMaximum(MAX_THREADS)
+        self.thread_spinbox.setMaximum(GUI_MAX_THREADS)
         self.thread_spinbox.setValue(OPTIMAL_THREADS)
         self.thread_spinbox.setToolTip(f"Number of threads for image enhancement\n"
                                      f"Detected {DEFAULT_CPU_COUNT} logical CPU cores\n"
