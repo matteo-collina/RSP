@@ -82,7 +82,7 @@ After the Alignment of the images in Agisoft Metashape Pro, run the script provi
 
 **Supervsion**: Prof. James J. Bell
 
-*A [Te Herenga Waka - Victoria University of Wellington Project](https://www.vuw.ac.nz), Developed by [Seammetry](https://www.seammetry.org).*
+*A [Te Herenga Waka - Victoria University of Wellington](https://www.vuw.ac.nz) Project, Developed by [Seammetry](https://www.seammetry.org).*
 
 If you are using this software for your research, please consider to cite:
 PAPER REFERENCE
