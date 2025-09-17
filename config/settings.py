@@ -3,7 +3,19 @@ Application configuration and constants.
 """
 
 import os
+import sys
 import multiprocessing
+
+def get_resource_path(relative_path):
+    """Get absolute path to resource, works for dev and PyInstaller."""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        # Running in development mode
+        base_path = os.path.abspath(".")
+    
+    return os.path.join(base_path, relative_path)
 
 # Application metadata
 APP_NAME = "GPSP Image Processor"
@@ -65,7 +77,7 @@ MIN_THREADS = 1
 GUI_MAX_THREADS = 32
 
 # Asset paths
-ASSETS_DIR = "assets"
+ASSETS_DIR = get_resource_path("assets")
 APP_ICON = os.path.join(ASSETS_DIR, "app_icon.png")
 UNIVERSITY_LOGO = os.path.join(ASSETS_DIR, "university_logo.png")
 GOPRO_QR_CODE = os.path.join(ASSETS_DIR, "gopro_qr_code.png")
