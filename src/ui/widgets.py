@@ -41,6 +41,9 @@ class LeftPanel(QWidget):
             logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             layout.addWidget(logo_label)
         
+        # Add spacing under the logo
+        layout.addSpacing(15)
+        
         # Prefix inputs
         self.prefix_inputs = []
         for i in range(1, 4):
