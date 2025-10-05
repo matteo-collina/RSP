@@ -2,7 +2,7 @@
 
 ## Unified Entry Point
 
-The GPSP Image Processor has a single, professional entry point that automatically detects whether to launch GUI or CLI mode.
+The GPSP Image Processor has a single entry point that automatically detects whether to launch GUI or CLI mode.
 
 ### Basic Usage
 
