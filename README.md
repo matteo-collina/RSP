@@ -7,37 +7,37 @@ RSP is a comprehensive toolbox designed to streamline the capture and processing
 ***
 
 ## Main Features:
-- Automatic Stereo Camera Setting for Photogrammetry
-- Dataset Management
-- Image Enhancement 
+- Automatic GoPro Setting for Photogrammetry
+- Dataset Managment
+- Image Enhancment 
 - Accurate 3D modeling scaling
 
 ***
 
 ## Description
 
-RSP take advantage of the stereo-vision to simply the production of scaled photogrammetric model for researcher and citizen scientist using common used stereo cameras. After the acquisition of the picture using the settings provided, the images can be imported on the data manager software, which takes care of the organization of the dataset and can perform some basic image enhancement. Later, simply import the images in the Agisoft Metashape Pro software, align your project and run the Metashape script provided.
+RSP take advantage of the stereo-vision to simply the production of scaled photogrammetric model for researcher and citizien scientist using common used GoPros. After the acquisition of the picture using the settings provided, the images can be imported on the data manager software, which takes care of the organization of the dataset and can perform some basic image enhancment. Later, simply import the images in the Agisoft Metashape Pro software, align your project and run the Metashape script provided.
 
 RSP is composed of 4 elements:
 
-1. A stereo cameras array *(up to 3 supported)*
-2. A stereo cameras sync script
+1. A GoPros array *(up to 3 supported)*
+2. A GoPros Sync script
 3. A data manager and Image Enhancement software (GUI and CLI)
 4. A series of Metashape scripts to scale the model
 
-### 1. Stereo Cameras Array
+### 1. GoPros Array
 
-The stereo cameras array can be easily crafted using rod-rails used in video-production, few rod-rails connectors and camera mounts. The rig has to contain at least 2 stereo cameras, but the Data Manager can handle up to 3 (check below).
+The GoPros array can be easily crafted using rod-rails used in video-production, few rod-rails connectors and camera mounts. The rig has to contain at least 2 GoPros, but the Data Manager can handle up to 3 (check below).
 
 IMAGE
 
-### 2. Stereo Camera Sync script
+### 2. GoPro Sync script
 
-The stereo camera sync script needs to be executed in all the stereo cameras of the array and keep the acquisition synced among cameras. The script is launched during camera boot and get executed automatically. Just shake the stereo camera array to start scanning!
+The GoPro sync script needs to be executed in all the GoPros of the array and keep the acquisition synced among cameras. The script is launched during GoPro boot and get executed automatically. Just shake the GoPro array to start scanning!
 
 ### 3. RSP Data Manager software
 
-When you download the images on your computer, just copy the file from each stereo camera in different folders (for instance "left" and "right"). Data Manager will organize the dataset, improve the image quality and prepare the dataset to be processed in Agisoft Metashape Pro.
+When you download the images on your computer, just copy the file from each GoPro in different folders (for instance "left" and "right"). Data Manager will organize the dataset, improve the image quality and prepare the dataset to be processed in Agisoft Metashape Pro.
 
 **Easy Usage:** 
 ```bash
@@ -72,16 +72,16 @@ Based on the data acquired, this script will refine the alignment of your  image
 
 ### Features
 
-### Install Stereo Camera script
-To install the script you have to simply scan the QR code provided. Then, put the stereo cameras in Photo mode, and turn on the intervalometer function. You are ready to go!
+### Install GoPro script
+To install the script you have to simply scan the QR code provided. Then, put the GoPros in Photo mode, and turn on the intervalometer function. You are ready to go!
 
-When the stereo cameras turn on, you will see some values on the main scene. This means that the script has been executed. To trigger the acquisition shake vigorously the Array and the cameras will start acquiring pictures.
+When the GoPros turn on, you will see some values on the main scene. This means that the script has been executed. To trigger the acquistion shake vigorously the Array and the cameras will start acquiring pictures.
 
 IMAGE
 
-**NB: To scan the QR code the Lab version of the camera firmware needs to be installed. GoPro Labs currently supports HERO13/12/11/10/9/8/7 Black, HERO11 Black Mini, and HERO5 Session.**
+**NB: To scan the QR code the Lab version of the GoPro firmware needs to be installed. GoPro Labs currently supports HERO13/12/11/10/9/8/7 Black, HERO11 Black Mini, and HERO5 Session.**
 
-*Please refer to the [GoPro Labs website](https://community.gopro.com/s/article/GoPro-Labs?language=en_US) on how to install the firmware on your cameras. It requires to download and copy a zip file in your micro-sd and reboot the camera.*
+*Please refere to the [GoPro Labs website](https://community.gopro.com/s/article/GoPro-Labs?language=en_US) on how to install the firmware on your GoPros. It requires to download and copy a zip file in your micro-sd and reboot the camera.*
 
 ### Manage the Data
 When downloading the JPEGs from the SD cards, divide the dataset in three folder named center, left, right containing center, left and right camera dataset *(remove any pictures which is not part of the acquisition)*. In the Data Manager software, set up to 3 prefixes (we recommend date,divesite, dive), and specify the path of the folders. You can also decide to apply an image enhancment algorithm. If you check this option, a new panel will open and you can check how the algorithm perform on your dataset. If you are happy with the result, you can process the images.
