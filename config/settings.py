@@ -83,7 +83,7 @@ UNIVERSITY_LOGO = os.path.join(ASSETS_DIR, "university_logo.png")
 GOPRO_QR_CODE = os.path.join(ASSETS_DIR, "gopro_qr_code.png")
 
 # UI settings
-WINDOW_WIDTH = 1200
+WINDOW_WIDTH = 550
 WINDOW_HEIGHT = 800
 LEFT_PANEL_WIDTH = 400
 IMAGE_PREVIEW_MIN_WIDTH = 600
