@@ -18,7 +18,7 @@ def get_resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 # Application metadata
-APP_NAME = "GPSP Image Processor"
+APP_NAME = "RSP Image Processor"
 APP_VERSION = "0.2.0-dev"
 APP_DATE = "July 2025"
 CONTACT_EMAIL = "matteo.collina@vuw.ac.nz"
@@ -93,7 +93,7 @@ IMAGE_PREVIEW_MIN_HEIGHT = 400
 DOCUMENTATION_URL = "https://www.google.com"
 
 # About text
-ABOUT_TEXT = """GPSP Image Processor
+ABOUT_TEXT = """RSP Image Processor
 A Victoria University of Wellington project
 Developed by Seammetry
 

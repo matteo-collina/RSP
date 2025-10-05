@@ -1,14 +1,14 @@
-# GPSP Usage Guide
+# RSP Usage Guide
 
 ## Unified Entry Point
 
-The GPSP Image Processor has a single entry point that automatically detects whether to launch GUI or CLI mode.
+The RSP Image Processor has a single entry point that automatically detects whether to launch GUI or CLI mode.
 
 ### Basic Usage
 
 ```bash
-python gpsp.py                    # Launch GUI (no arguments)
-python gpsp.py [CLI options]      # Run CLI mode (any arguments present)
+python rsp.py                    # Launch GUI (no arguments)
+python rsp.py [CLI options]      # Run CLI mode (any arguments present)
 ```
 
 ### GUI Mode
@@ -16,7 +16,7 @@ python gpsp.py [CLI options]      # Run CLI mode (any arguments present)
 Launch the graphical interface for interactive processing:
 
 ```bash
-python gpsp.py
+python rsp.py
 ```
 
 ### CLI Mode
@@ -46,33 +46,33 @@ At least one directory must be specified:
 
 **Basic rename only:**
 ```bash
-python gpsp.py --left /path/to/left --right /path/to/right
+python rsp.py --left /path/to/left --right /path/to/right
 ```
 
 **Rename with prefixes:**
 ```bash
-python gpsp.py --left /path/to/left --prefix1 "dive1" --prefix2 "site1" --rename true
+python rsp.py --left /path/to/left --prefix1 "dive1" --prefix2 "site1" --rename true
 ```
 
 **Enhance images only (no renaming):**
 ```bash
-python gpsp.py --center /path/to/center --rename false --enhance true
+python rsp.py --center /path/to/center --rename false --enhance true
 ```
 
 **Full processing with custom threads:**
 ```bash
-python gpsp.py --left /path/to/left --right /path/to/right --prefix1 "dive1" --thread 8 --rename true --enhance true
+python rsp.py --left /path/to/left --right /path/to/right --prefix1 "dive1" --thread 8 --rename true --enhance true
 ```
 
 **High-performance server processing:**
 ```bash
-python gpsp.py --left /path/to/left --thread 64 --enhance true
+python rsp.py --left /path/to/left --thread 64 --enhance true
 ```
 
 ### Help
 
 ```bash
-python gpsp.py --help
+python rsp.py --help
 ```
 
 ### Error Handling

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-GPSP Image Processor - Unified Entry Point
+RSP Image Processor - Unified Entry Point
 
 Usage:
-  python gpsp.py                    # Launch GUI (no arguments)
-  python gpsp.py [CLI arguments]    # Run CLI mode (any arguments present)
+  python rsp.py                    # Launch GUI (no arguments)
+  python rsp.py [CLI arguments]    # Run CLI mode (any arguments present)
 """
 
 import argparse
@@ -20,7 +20,7 @@ from src.core.image_processor import ImageProcessor
 
 
 class CLIProcessor:
-    """Command-line processor for GPSP."""
+    """Command-line processor for RSP."""
     
     def __init__(self):
         self.progress_lock = Lock()
@@ -30,7 +30,7 @@ class CLIProcessor:
     
     def process_images(self, paths, prefixes, enhancement_enabled, rename_enabled, num_threads, sort_method="exif"):
         """Process images with the given parameters."""
-        print("Starting GPSP Image Processing...")
+        print("Starting RSP Image Processing...")
         self.start_time = time.time()
         
         try:
@@ -196,14 +196,14 @@ def validate_directory(path):
 def run_cli():
     """Run the CLI mode."""
     parser = argparse.ArgumentParser(
-        prog='gpsp.py',
-        description="GPSP Image Processor - Command Line Interface",
+        prog='rsp.py',
+        description="RSP Image Processor - Command Line Interface",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python gpsp.py --left /path/to/left --right /path/to/right --rename true --enhance true
-  python gpsp.py --center /path/to/center --prefix1 "dive1" --prefix2 "site1" --thread auto
-  python gpsp.py --left /path/to/left --right /path/to/right --thread 8 --rename false --enhance true
+  python rsp.py --left /path/to/left --right /path/to/right --rename true --enhance true
+  python rsp.py --center /path/to/center --prefix1 "dive1" --prefix2 "site1" --thread auto
+  python rsp.py --left /path/to/left --right /path/to/right --thread 8 --rename false --enhance true
         """
     )
     
@@ -283,7 +283,7 @@ Examples:
     prefixes = [args.prefix1, args.prefix2, args.prefix3]
     
     # Display configuration
-    print("GPSP Image Processor - CLI Mode")
+    print("RSP Image Processor - CLI Mode")
     print("=" * 50)
     print(f"Directories: {list(valid_paths.keys())}")
     print(f"Prefixes: {[p for p in prefixes if p]}")  # Only show non-empty prefixes
@@ -324,7 +324,7 @@ def main():
     
     # If no arguments provided, launch GUI
     if len(sys.argv) == 1:
-        print("GPSP Image Processor - Starting GUI...")
+        print("RSP Image Processor - Starting GUI...")
         run_gui()
     else:
         # Any arguments present = CLI mode

@@ -1,4 +1,4 @@
-name: GPSP
+name: rsp
 channels:
   - conda-forge
   - defaults

@@ -15,13 +15,13 @@ conda env create -f environment.yml
 
 2. Activate the environment:
 ```bash
-conda activate GPSP
+conda activate rsp
 ```
 
 3. Run the application:
 ```bash
-python gpsp.py              # GUI mode (no arguments)
-python gpsp.py --help       # CLI mode help
+python rsp.py              # GUI mode (no arguments)
+python rsp.py --help       # CLI mode help
 ```
 4. When you're done using the application:
 ```bash
@@ -44,8 +44,8 @@ pip install -r requirements.txt
 
 2. Run the application:
 ```bash
-python gpsp.py              # GUI mode (no arguments)  
-python gpsp.py --help       # CLI mode help
+python rsp.py              # GUI mode (no arguments)  
+python rsp.py --help       # CLI mode help
 ```
 
 

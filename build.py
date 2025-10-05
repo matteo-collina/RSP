@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-GPSP Build Script
-Automated build system for creating GPSP executable using PyInstaller
+RSP Build Script
+Automated build system for creating RSP executable using PyInstaller
 """
 
 import os
@@ -14,8 +14,8 @@ from pathlib import Path
 def print_banner():
     """Print build banner."""
     print("=" * 60)
-    print("🚀 GPSP Executable Builder")
-    print("   Building self-contained GPSP application...")
+    print("🚀 RSP Executable Builder")
+    print("   Building self-contained RSP application...")
     print("=" * 60)
 
 def check_requirements():
@@ -94,12 +94,12 @@ VSVersionInfo(
       StringTable(
         u'040904B0',
         [StringStruct(u'CompanyName', u'Victoria University of Wellington'),
-        StringStruct(u'FileDescription', u'GPSP Image Processor'),
+        StringStruct(u'FileDescription', u'RSP Image Processor'),
         StringStruct(u'FileVersion', u'1.0.0'),
-        StringStruct(u'InternalName', u'GPSP'),
+        StringStruct(u'InternalName', u'RSP'),
         StringStruct(u'LegalCopyright', u'© 2025 Victoria University of Wellington'),
-        StringStruct(u'OriginalFilename', u'GPSP.exe'),
-        StringStruct(u'ProductName', u'GPSP Image Processor'),
+        StringStruct(u'OriginalFilename', u'RSP.exe'),
+        StringStruct(u'ProductName', u'RSP Image Processor'),
         StringStruct(u'ProductVersion', u'1.0.0')])
       ]),
     VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
@@ -121,17 +121,17 @@ def build_executable(mode="onefile"):
             sys.executable, "-m", "PyInstaller",
             "--onefile",
             "--windowed",
-            "--name", "GPSP",
+            "--name", "RSP",
             "--add-data", "assets;assets",
             "--add-data", "config;config", 
             "--add-data", "src;src",
             "--icon", "assets/app_icon.png",
             "--version-file", "version.txt",
-            "gpsp.py"
+            "rsp.py"
         ]
     else:
         # Full build using spec file
-        cmd = [sys.executable, "-m", "PyInstaller", "gpsp.spec"]
+        cmd = [sys.executable, "-m", "PyInstaller", "rsp.spec"]
     
     try:
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
@@ -148,10 +148,10 @@ def test_executable():
     print("\n🧪 Testing executable...")
     
     exe_path = None
-    if os.path.exists("dist/GPSP.exe"):
-        exe_path = "dist/GPSP.exe"
-    elif os.path.exists("dist/GPSP/GPSP.exe"):
-        exe_path = "dist/GPSP/GPSP.exe"
+    if os.path.exists("dist/RSP.exe"):
+        exe_path = "dist/RSP.exe"
+    elif os.path.exists("dist/RSP/RSP.exe"):
+        exe_path = "dist/RSP/RSP.exe"
     
     if not exe_path:
         print("❌ Executable not found in dist/ directory")
@@ -161,7 +161,7 @@ def test_executable():
     try:
         result = subprocess.run([exe_path, "--help"], 
                               capture_output=True, text=True, timeout=30)
-        if "GPSP Image Processor" in result.stdout:
+        if "RSP Image Processor" in result.stdout:
             print("✅ CLI interface working")
         else:
             print("⚠️  CLI test unclear - check manually")
@@ -210,7 +210,7 @@ def main():
         
         if test_executable():
             print("\n🎉 Build completed successfully!")
-            print("   📁 Executable: dist/GPSP.exe")
+            print("   📁 Executable: dist/RSP.exe")
             print("\n   Ready for distribution! 🚀")
         else:
             print("\n⚠️  Build completed but tests failed")

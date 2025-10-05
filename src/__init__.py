@@ -1,3 +1,3 @@
 """
-GPSP Image Processor Package
+RSP Image Processor Package
 """
