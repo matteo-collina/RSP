@@ -5,9 +5,7 @@ Process Metashape Reference Export File
 This script processes a manually exported reference file from Metashape
 to extract estimated baseline distances and calculate the median.
 
-Usage: 
-- For Metashape: Run directly in Python console (uses file dialogs)
-- For command line: python process_reference_export.py <export_file_path>
+Usage: Run this script within Agisoft Metashape Python console
 """
 
 import sys

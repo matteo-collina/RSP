@@ -1,3 +1,13 @@
+"""
+Agisoft Metashape Stereo Scaling Script
+
+This script:
+1. Finds stereo camera pairs (left/right naming convention)
+2. Creates scalebars between stereo pairs
+
+Usage: Run this script within Agisoft Metashape Python console
+"""
+
 import Metashape
 
 def process_metashape_script(distance_value, optimize_cameras):
