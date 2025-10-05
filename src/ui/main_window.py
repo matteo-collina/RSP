@@ -36,6 +36,12 @@ class ImageProcessor(QMainWindow):
         self.setup_ui()
         self.setup_menu()
     
+    def closeEvent(self, event):
+        """Handle application close event - clean up memory."""
+        if hasattr(self, 'right_panel'):
+            self.right_panel.clear_memory()
+        event.accept()
+    
     def setup_ui(self):
         """Setup the main UI layout."""
         central_widget = QWidget()

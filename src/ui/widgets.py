@@ -4,7 +4,6 @@ Custom widgets for the application.
 
 import os
 import random
-import shutil
 import cv2
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                             QPushButton, QLineEdit, QFileDialog, QCheckBox, 
@@ -184,6 +183,7 @@ class RightPanel(QWidget):
         super().__init__()
         self.parent = parent
         self.setMinimumWidth(IMAGE_PREVIEW_MIN_WIDTH)
+        self.current_pixmap = None  # Store current image in memory
         self.setup_ui()
         self.hide()  # Initially hidden
     
@@ -214,15 +214,8 @@ class RightPanel(QWidget):
                           "warning")
             return
         
-        # Ensure temp folder exists
-        if not os.path.exists(TEMP_FOLDER):
-            os.makedirs(TEMP_FOLDER)
-        
-        # Clear temp folder
-        for filename in os.listdir(TEMP_FOLDER):
-            file_path = os.path.join(TEMP_FOLDER, filename)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+        # Clean previous image from memory
+        self.clear_memory()
         
         # Select random image
         from src.core.file_manager import FileManager
@@ -236,44 +229,44 @@ class RightPanel(QWidget):
         
         random_file = random.choice(files)
         random_image_path = os.path.join(left_folder, random_file)
-        temp_image_path = os.path.join(TEMP_FOLDER, random_file)
         
-        # Copy image to temp folder
-        shutil.copy(random_image_path, temp_image_path)
-        
-        # Apply enhancement if checked
-        img = cv2.imread(temp_image_path)
+        # Load and process image in memory
+        img = cv2.imread(random_image_path)
         if img is not None:
             if self.parent.left_panel.enhancement_checkbox.isChecked():
-                enhanced_img_clahe = apply_clahe_enhancement(img)
-                temp_name_clahe = os.path.splitext(random_file)[0] + '_CLAHE.jpg'
-                temp_path_clahe = os.path.join(TEMP_FOLDER, temp_name_clahe)
-                cv2.imwrite(temp_path_clahe, enhanced_img_clahe)
-                self.display_image(temp_path_clahe)
-            else:
-                self.display_image(temp_image_path)
-        
-        # Schedule cleanup
-        QTimer.singleShot(5000, self.delete_temp_folder)
+                img = apply_clahe_enhancement(img)
+            self.display_cv2_image(img)
     
-    def display_image(self, image_path):
-        """Display an image in the preview label."""
+    def display_cv2_image(self, cv2_img):
+        """Display a CV2 image in the preview label (memory-based)."""
         try:
-            scaled_pixmap = scale_pixmap_to_label(image_path, self.image_preview.size())
-            if scaled_pixmap:
-                self.image_preview.setPixmap(scaled_pixmap)
-        except Exception as e:
-            print(f"Warning: Could not display image {image_path}: {e}")
-    
-    def delete_temp_folder(self):
-        """Clean up temporary files."""
-        try:
-            for filename in os.listdir(TEMP_FOLDER):
-                file_path = os.path.join(TEMP_FOLDER, filename)
-                if os.path.isfile(file_path):
-                    os.remove(file_path)
+            # Convert CV2 image (BGR) to RGB
+            rgb_img = cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB)
+            h, w, ch = rgb_img.shape
+            bytes_per_line = ch * w
             
-            if not os.listdir(TEMP_FOLDER):
-                os.rmdir(TEMP_FOLDER)
+            # Create QImage from RGB data
+            from PyQt6.QtGui import QImage
+            q_image = QImage(rgb_img.data, w, h, bytes_per_line, QImage.Format.Format_RGB888)
+            
+            # Convert to pixmap and scale
+            pixmap = QPixmap.fromImage(q_image)
+            scaled_pixmap = pixmap.scaled(
+                self.image_preview.size(), 
+                Qt.AspectRatioMode.KeepAspectRatio, 
+                Qt.TransformationMode.SmoothTransformation
+            )
+            
+            # Clean previous pixmap and store new one
+            self.clear_memory()
+            self.current_pixmap = scaled_pixmap
+            self.image_preview.setPixmap(scaled_pixmap)
+            
         except Exception as e:
-            print(f"Warning: Could not clean up temp folder: {e}")
+            print(f"Warning: Could not display image: {e}")
+    
+    def clear_memory(self):
+        """Clear current image from memory."""
+        if self.current_pixmap is not None:
+            self.current_pixmap = None
+            self.image_preview.clear()
