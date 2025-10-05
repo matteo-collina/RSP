@@ -8,12 +8,12 @@ import cv2
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                             QPushButton, QLineEdit, QFileDialog, QCheckBox, 
                             QProgressBar, QSpinBox, QComboBox)
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap, QFont
 
 from config.settings import (UNIVERSITY_LOGO, LEFT_PANEL_WIDTH, IMAGE_PREVIEW_MIN_WIDTH,
                            IMAGE_PREVIEW_MIN_HEIGHT, OPTIMAL_THREADS, GUI_MAX_THREADS, MIN_THREADS,
-                           DEFAULT_CPU_COUNT, TEMP_FOLDER)
+                           DEFAULT_CPU_COUNT)
 from src.core.image_processor import ImageProcessor
 from src.core.image_enhancement import apply_clahe_enhancement
 from src.utils.ui_utils import scale_pixmap_to_label

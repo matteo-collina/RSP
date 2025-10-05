@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QMessageBox
 from PyQt6.QtGui import QIcon
 
 from config.settings import (APP_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, APP_ICON, 
-                           TEMP_FOLDER, DOCUMENTATION_URL)
+                           DOCUMENTATION_URL)
 from src.ui.widgets import LeftPanel, RightPanel
 from src.ui.dialogs import AboutDialog, GoProDialog, show_message_box
 from src.workers.processing_thread import ImageProcessingThread
@@ -29,9 +29,6 @@ class ImageProcessor(QMainWindow):
         
         # Initialize variables
         self.paths = {"center": "", "left": "", "right": ""}
-        self.temp_folder = TEMP_FOLDER
-        if not os.path.exists(self.temp_folder):
-            os.makedirs(self.temp_folder)
         
         self.setup_ui()
         self.setup_menu()
