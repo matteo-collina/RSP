@@ -25,7 +25,6 @@ CONTACT_EMAIL = "matteo.collina@vuw.ac.nz"
 
 # File handling
 VALID_IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif'}
-TEMP_FOLDER = "TempImages"
 
 # Processing defaults
 DEFAULT_CPU_COUNT = multiprocessing.cpu_count()
