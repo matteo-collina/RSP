@@ -43,7 +43,7 @@ class ImageProcessingThread(QThread):
                 max_progress = total_files  # just rename
                 
             current_progress = 0
-            processed_images = []  # Changed from renamed_images to processed_images
+            processed_images = []
             
             # Process files phase (rename and collect valid paths)
             for prefix, path in self.paths.items():

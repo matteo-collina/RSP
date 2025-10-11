@@ -16,7 +16,6 @@ from config.settings import (UNIVERSITY_LOGO, LEFT_PANEL_WIDTH, IMAGE_PREVIEW_MI
                            DEFAULT_CPU_COUNT)
 from src.core.image_processor import ImageProcessor
 from src.core.image_enhancement import apply_clahe_enhancement
-from src.utils.ui_utils import scale_pixmap_to_label
 
 
 class LeftPanel(QWidget):

@@ -4,9 +4,10 @@ Core image processing functionality.
 
 import os
 import cv2
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from PIL import Image
 from src.core.image_enhancement import apply_clahe_enhancement
-from config.settings import VALID_IMAGE_EXTENSIONS
+from src.core.file_manager import FileManager
 
 
 class ImageProcessor:
@@ -15,7 +16,52 @@ class ImageProcessor:
     @staticmethod
     def is_valid_image_file(filename):
         """Check if file is a valid image file."""
-        return os.path.splitext(filename.lower())[1] in VALID_IMAGE_EXTENSIONS
+        return FileManager.is_valid_image_file(filename)
+    
+    @staticmethod
+    def process_images_multithreaded(image_paths, num_threads, progress_callback=None):
+        """
+        Process multiple images with enhancement using multiple threads.
+        
+        Args:
+            image_paths: List of image file paths to process
+            num_threads: Number of worker threads
+            progress_callback: Optional callback function(current, total, success, message)
+        
+        Returns:
+            Tuple (successful_count, failed_count)
+        """
+        successful = 0
+        failed = 0
+        total = len(image_paths)
+        current = 0
+        
+        with ThreadPoolExecutor(max_workers=num_threads) as executor:
+            future_to_image = {
+                executor.submit(ImageProcessor.process_single_image, image_path): image_path 
+                for image_path in image_paths
+            }
+            
+            for future in as_completed(future_to_image):
+                image_path = future_to_image[future]
+                current += 1
+                
+                try:
+                    success, message = future.result()
+                    if success:
+                        successful += 1
+                    else:
+                        failed += 1
+                    
+                    if progress_callback:
+                        progress_callback(current, total, success, message)
+                        
+                except Exception as e:
+                    failed += 1
+                    if progress_callback:
+                        progress_callback(current, total, False, f"Exception: {str(e)}")
+        
+        return successful, failed
     
     @staticmethod
     def process_single_image(image_path):

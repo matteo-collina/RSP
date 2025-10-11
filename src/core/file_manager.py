@@ -5,12 +5,16 @@ File management and renaming operations.
 import os
 from datetime import datetime
 from PIL import Image
-from PIL.ExifTags import TAGS
-from src.core.image_processor import ImageProcessor
+from config.settings import VALID_IMAGE_EXTENSIONS
 
 
 class FileManager:
     """Handles file operations like renaming and directory management."""
+    
+    @staticmethod
+    def is_valid_image_file(filename):
+        """Check if file is a valid image file."""
+        return os.path.splitext(filename.lower())[1] in VALID_IMAGE_EXTENSIONS
     
     @staticmethod
     def get_exif_date_taken(image_path):
@@ -51,7 +55,7 @@ class FileManager:
             file_path = os.path.join(directory, filename)
             if (os.path.isfile(file_path) and 
                 not filename.startswith('.') and 
-                ImageProcessor.is_valid_image_file(filename)):
+                FileManager.is_valid_image_file(filename)):
                 
                 if sort_method == "exif":
                     # Use EXIF date taken if available, otherwise file modification time

@@ -17,6 +17,7 @@ from threading import Lock
 from config.settings import OPTIMAL_THREADS, MIN_THREADS
 from src.core.file_manager import FileManager
 from src.core.image_processor import ImageProcessor
+from src.utils.ui_utils import format_time
 
 
 class CLIProcessor:
@@ -77,13 +78,13 @@ class CLIProcessor:
             # Calculate processing time
             processing_time = time.time() - self.start_time
             print(f"\n✅ Processing completed successfully!")
-            print(f"⏱️  Total processing time: {self._format_time(processing_time)}")
+            print(f"⏱️  Total processing time: {format_time(processing_time)}")
             return True
             
         except Exception as e:
             processing_time = time.time() - self.start_time if self.start_time else 0
             print(f"❌ An error occurred: {e}")
-            print(f"⏱️  Time elapsed: {self._format_time(processing_time)}")
+            print(f"⏱️  Time elapsed: {format_time(processing_time)}")
             return False
     
     def _count_total_files(self, paths):
@@ -164,20 +165,6 @@ class CLIProcessor:
         if maximum > 0:
             percent = int((current / maximum) * 100)
             print(f"Progress: {current}/{maximum} ({percent}%) - {status_text}")
-    
-    def _format_time(self, seconds):
-        """Format time in seconds to a human-readable string."""
-        if seconds < 60:
-            return f"{seconds:.1f} seconds"
-        elif seconds < 3600:
-            minutes = int(seconds // 60)
-            remaining_seconds = seconds % 60
-            return f"{minutes}m {remaining_seconds:.1f}s"
-        else:
-            hours = int(seconds // 3600)
-            minutes = int((seconds % 3600) // 60)
-            remaining_seconds = seconds % 60
-            return f"{hours}h {minutes}m {remaining_seconds:.1f}s"
 
 
 def validate_directory(path):
