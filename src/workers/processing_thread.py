@@ -52,7 +52,7 @@ class ImageProcessingThread(QThread):
                         path, prefix, current_progress, processed_images, max_progress
                     )
             
-            # Enhancement phase (if enabled) - NOW MULTI-THREADED
+            # Enhancement phase (if enabled)
             if self.enhancement_enabled:
                 # Filter out any invalid paths before enhancement
                 valid_images = []
