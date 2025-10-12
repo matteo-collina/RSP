@@ -19,7 +19,7 @@ def get_resource_path(relative_path):
 
 # Application metadata
 APP_NAME = "RSP Image Processor"
-APP_VERSION = "0.2.0-dev"
+APP_VERSION = "0.2.1-dev"
 APP_DATE = "July 2025"
 CONTACT_EMAIL = "matteo.collina@vuw.ac.nz"
 
@@ -72,7 +72,7 @@ def calculate_optimal_threads():
 OPTIMAL_THREADS = calculate_optimal_threads()
 MIN_THREADS = 1
 
-# For GUI, we still want a reasonable upper limit to prevent UI issues
+# Set a reasonable upper limit to prevent UI issues
 GUI_MAX_THREADS = 32
 
 # Asset paths
