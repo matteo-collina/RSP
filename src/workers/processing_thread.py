@@ -16,7 +16,7 @@ class ImageProcessingThread(QThread):
     """Background thread for processing images."""
     
     progress_updated = pyqtSignal(int, int, str)  # current, maximum, status_text
-    finished_processing = pyqtSignal(bool, str, float)  # success, message, processing_time
+    finished_processing = pyqtSignal(bool, str, float, int)  # success, message, processing_time, total_files
     
     def __init__(self, paths, prefixes, enhancement_enabled, rename_enabled, num_threads=4, sort_method="exif"):
         super().__init__()
@@ -28,6 +28,7 @@ class ImageProcessingThread(QThread):
         self.sort_method = sort_method  # 'exif', 'filename', or 'mtime'
         self.progress_lock = Lock()  # Thread-safe progress updates
         self.start_time = None
+        self.total_files = 0  # Track total files processed
     
     def run(self):
         """Main processing loop."""
@@ -36,6 +37,7 @@ class ImageProcessingThread(QThread):
         
         try:
             total_files = self._count_total_files()
+            self.total_files = total_files  # Store for report generation
             
             if self.enhancement_enabled:
                 max_progress = total_files * 2  # rename + enhancement
@@ -72,11 +74,11 @@ class ImageProcessingThread(QThread):
             
             # Calculate processing time
             processing_time = time.time() - self.start_time
-            self.finished_processing.emit(True, "Processing completed successfully!", processing_time)
+            self.finished_processing.emit(True, "Processing completed successfully!", processing_time, self.total_files)
             
         except Exception as e:
             processing_time = time.time() - self.start_time if self.start_time else 0
-            self.finished_processing.emit(False, f"An error occurred: {e}", processing_time)
+            self.finished_processing.emit(False, f"An error occurred: {e}", processing_time, self.total_files)
     
     def _count_total_files(self):
         """Count total valid image files across all directories."""
