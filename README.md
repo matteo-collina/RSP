@@ -97,6 +97,17 @@ After the Alignment of the images in Agisoft Metashape Pro, run the script provi
 
 *******
 
+## Test Dataset
+
+A dataset which includes physical markers to test RSP capabilities can be found at [LINK (https://vuw-my.sharepoint.com/:f:/g/personal/collinm4_staff_vuw_ac_nz/IgDWoawUu78cTLdXGB_Z39aMAeho1nQtU2GP3YPSIZHVYVs?e=x56G5I)]
+
+The dataset contains:
+- RAW Images
+- Enhanced and Renamed Images
+- Baseline
+
+*******
+
 ## Credits
 
 **Software Development:** Matteo Collina
