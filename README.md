@@ -35,6 +35,8 @@ IMAGE
 
 The GoPro sync script needs to be executed in all the GoPros of the array and keep the acquisition synced among cameras. The script is launched during GoPro boot and get executed automatically. Just shake the GoPro array to start scanning!
 
+<video src="https://github.com/matteo-collina/RSP/raw/main/documentation/gopro_shake.mov" controls width="600"></video>
+
 ### 3. RSP Data Manager software
 
 When you download the images on your computer, just copy the file from each GoPro in different folders (for instance "left" and "right"). Data Manager will organize the dataset, improve the image quality and prepare the dataset to be processed in Agisoft Metashape Pro.
