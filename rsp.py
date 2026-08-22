@@ -11,160 +11,57 @@ import argparse
 import os
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from threading import Lock
 
 from config.settings import OPTIMAL_THREADS, MIN_THREADS
-from src.core.file_manager import FileManager
-from src.core.image_processor import ImageProcessor
-from src.utils.ui_utils import format_time
+from src.core.pipeline import run_processing_pipeline
+from src.core.image_enhancement import ENHANCEMENT_METHODS, DEFAULT_PARAMS
+from src.utils.ui_utils import format_time  # pure Python, no PyQt6 -- see ui_utils.py's docstring
+
+# NOTE: all CLI output must stay plain ASCII. Windows consoles commonly
+# use the cp1252 codepage, where printing emoji raises UnicodeEncodeError
+# -- which then masks the actual error being reported.
 
 
 class CLIProcessor:
-    """Command-line processor for RSP."""
-    
-    def __init__(self):
-        self.progress_lock = Lock()
-        self.total_files = 0
-        self.current_progress = 0
-        self.start_time = None
-    
-    def process_images(self, paths, prefixes, enhancement_enabled, rename_enabled, num_threads, sort_method="exif"):
-        """Process images with the given parameters."""
-        print("Starting RSP Image Processing...")
-        self.start_time = time.time()
-        
-        try:
-            # Count total files
-            self.total_files = self._count_total_files(paths)
-            if self.total_files == 0:
-                print("No valid image files found in the specified directories.")
-                return False
-            
-            print(f"Found {self.total_files} images to process")
-            
-            if enhancement_enabled:
-                max_progress = self.total_files * 2  # rename + enhancement
-                print("Processing mode: Rename + Enhancement")
-            else:
-                max_progress = self.total_files  # just rename
-                print("Processing mode: Rename only")
-                
-            self.current_progress = 0
-            processed_images = []
-            
-            # Process files phase (rename and collect valid paths)
-            print("\n--- Phase 1: Processing and Renaming Files ---")
-            for prefix, path in paths.items():
-                if path:
-                    print(f"Processing {prefix} directory: {path}")
-                    self.current_progress = self._process_directory(
-                        path, prefix, self.current_progress, processed_images, max_progress, prefixes, rename_enabled, sort_method
-                    )
-            
-            # Enhancement phase (if enabled)
-            if enhancement_enabled:
-                print(f"\n--- Phase 2: Enhancing {len(processed_images)} Images ---")
-                # Filter out any invalid paths before enhancement
-                valid_images = [img_path for img_path in processed_images if os.path.exists(img_path) and os.path.isfile(img_path)]
-                
-                if valid_images:
-                    self._apply_enhancement_multithreaded(valid_images, self.current_progress, max_progress, num_threads)
-                else:
-                    print("Warning: No valid images found for enhancement")
-            else:
-                self._update_progress(max_progress, max_progress, "Processing complete")
-            
-            # Calculate processing time
-            processing_time = time.time() - self.start_time
-            print(f"\n✅ Processing completed successfully!")
-            print(f"⏱️  Total processing time: {format_time(processing_time)}")
-            return True
-            
-        except Exception as e:
-            processing_time = time.time() - self.start_time if self.start_time else 0
-            print(f"❌ An error occurred: {e}")
-            print(f"⏱️  Time elapsed: {format_time(processing_time)}")
-            return False
-    
-    def _count_total_files(self, paths):
-        """Count total valid image files across all directories."""
-        total = 0
-        for path in paths.values():
-            if path and os.path.exists(path):
-                files = FileManager.get_image_files_with_timestamps(path, "exif")
-                total += len(files)
-        return total
-    
-    def _process_directory(self, directory, prefix, current_progress, processed_images, max_progress, prefixes, rename_enabled, sort_method):
-        """Process (and optionally rename) files in directory."""
-        try:
-            files = FileManager.get_image_files_with_timestamps(directory, sort_method)
-            
-            if rename_enabled:
-                files.sort(key=lambda x: x[1])  # Sort by timestamp/filename
-            
-            counter = 0
-            for filename, _ in files:
-                old_file_path = os.path.join(directory, filename)
-                
-                if rename_enabled:
-                    new_file_path = FileManager.generate_new_filename(
-                        directory, filename, prefixes, prefix, counter
-                    )
-                    final_path = FileManager.rename_file_safely(old_file_path, new_file_path)
-                    processed_images.append(final_path)
-                    print(f"  Renamed: {filename} -> {os.path.basename(final_path)}")
-                else:
-                    processed_images.append(old_file_path)
-                    print(f"  Processed: {filename}")
-                
-                counter += 1
-                current_progress += 1
-                self._update_progress(current_progress, max_progress, f"Processing {prefix} images")
-        
-        except Exception as e:
-            print(f"Error processing directory {directory}: {e}")
-        
-        return current_progress
-    
-    def _apply_enhancement_multithreaded(self, image_paths, start_progress, max_progress, num_threads):
-        """Apply image enhancement using multiple threads."""
-        current_progress = start_progress
-        
-        print(f"Using {num_threads} threads for enhancement")
-        
-        # Use ThreadPoolExecutor for parallel processing
-        with ThreadPoolExecutor(max_workers=num_threads) as executor:
-            # Submit all tasks
-            future_to_image = {
-                executor.submit(ImageProcessor.process_single_image, image_path): image_path 
-                for image_path in image_paths
-            }
-            
-            # Process completed tasks as they finish
-            for future in as_completed(future_to_image):
-                image_path = future_to_image[future]
-                
-                try:
-                    success, message = future.result()
-                    if success:
-                        print(f"  ✅ Enhanced: {os.path.basename(image_path)}")
-                    else:
-                        print(f"  ⚠️  Warning: {message}")
-                except Exception as e:
-                    print(f"  ❌ Exception processing {os.path.basename(image_path)}: {e}")
-                
-                # Thread-safe progress update
-                with self.progress_lock:
-                    current_progress += 1
-                    self._update_progress(current_progress, max_progress, "Enhancing images")
-    
-    def _update_progress(self, current, maximum, status_text):
-        """Update progress display."""
+    """Command-line front-end: prints the shared pipeline's progress.
+
+    The actual rename/enhance logic lives in src/core/pipeline.py,
+    shared with the GUI's background thread.
+    """
+
+    @staticmethod
+    def _print_progress(current, maximum, status_text):
         if maximum > 0:
             percent = int((current / maximum) * 100)
             print(f"Progress: {current}/{maximum} ({percent}%) - {status_text}")
+
+    def process_images(self, paths, prefixes, enhancement_enabled, rename_enabled, num_threads,
+                        sort_method="exif", enhancement_method="clahe", enhancement_params=None):
+        """Run the pipeline, printing progress. Returns True on success."""
+        print("Starting RSP Image Processing...")
+        start_time = time.time()
+
+        try:
+            total_files = run_processing_pipeline(
+                paths, prefixes, enhancement_enabled, rename_enabled, num_threads,
+                sort_method=sort_method,
+                enhancement_method=enhancement_method,
+                enhancement_params=enhancement_params,
+                progress_callback=self._print_progress,
+                log=print,
+            )
+            if total_files == 0:
+                print("No valid image files found in the specified directories.")
+                return False
+
+            print(f"\n[OK] Processing completed successfully! ({total_files} images)")
+            print(f"Total processing time: {format_time(time.time() - start_time)}")
+            return True
+
+        except Exception as e:
+            print(f"[ERROR] An error occurred: {e}")
+            print(f"Time elapsed: {format_time(time.time() - start_time)}")
+            return False
 
 
 def validate_directory(path):
@@ -189,8 +86,9 @@ def run_cli():
         epilog="""
 Examples:
   python rsp.py --left /path/to/left --right /path/to/right --rename true --enhance true
-  python rsp.py --center /path/to/center --prefix1 "dive1" --prefix2 "site1" --thread auto
+  python rsp.py --center /path/to/center --prefix1 "dive1" --prefix2 "site1" --sort filename
   python rsp.py --left /path/to/left --right /path/to/right --thread 8 --rename false --enhance true
+  python rsp.py --left /path/to/left --enhance true --method gray_world --param saturation=1.3
         """
     )
     
@@ -219,9 +117,39 @@ Examples:
                        help='Rename files with prefixes (default: true)')
     parser.add_argument('--enhance', type=str, choices=['true', 'false'], default='false',
                        help='Apply image enhancement (default: false)')
-    
+    parser.add_argument('--sort', type=str, choices=['exif', 'filename', 'mtime'], default='exif',
+                       help='Order images are sorted in before renaming: exif (camera '
+                            'timestamp), filename (alphabetical), or mtime (file modification '
+                            'time). Only affects --rename (default: exif)')
+    parser.add_argument('--method', type=str, choices=list(ENHANCEMENT_METHODS.keys()), default='clahe',
+                       help='Enhancement method (default: clahe)')
+    parser.add_argument('--param', action='append', default=[], metavar='KEY=VALUE',
+                       help="Override an enhancement parameter, e.g. --param saturation=1.3 "
+                            "(repeatable; unknown keys for the chosen --method are an error)")
+
     # Parse arguments
     args = parser.parse_args()
+
+    # Parse --param key=value overrides
+    enhancement_params = dict(DEFAULT_PARAMS.get(args.method, {}))
+    for entry in args.param:
+        if '=' not in entry:
+            print(f"Error: --param must be KEY=VALUE, got: {entry!r}")
+            sys.exit(1)
+        key, _, value = entry.partition('=')
+        if key not in enhancement_params:
+            print(f"Error: unknown parameter {key!r} for method {args.method!r}. "
+                  f"Valid keys: {sorted(enhancement_params.keys())}")
+            sys.exit(1)
+        if not isinstance(enhancement_params[key], (int, float)):
+            print(f"Error: {key!r} isn't a plain number (default is {enhancement_params[key]!r}) "
+                  f"and can't be set via --param.")
+            sys.exit(1)
+        try:
+            enhancement_params[key] = float(value)
+        except ValueError:
+            print(f"Error: --param {key} value must be a number, got: {value!r}")
+            sys.exit(1)
     
     # Validate and process thread argument
     if args.thread.lower() == 'auto':
@@ -276,17 +204,25 @@ Examples:
     print(f"Prefixes: {[p for p in prefixes if p]}")  # Only show non-empty prefixes
     print(f"Threads: {num_threads}")
     print(f"Rename files: {rename_enabled}")
+    if rename_enabled:
+        print(f"Sort method: {args.sort}")
     print(f"Enhance images: {enhancement_enabled}")
+    if enhancement_enabled:
+        print(f"Enhancement method: {args.method}")
+        print(f"Enhancement parameters: {enhancement_params}")
     print("=" * 50)
-    
+
     # Create processor and run
     processor = CLIProcessor()
     success = processor.process_images(
-        valid_paths, 
+        valid_paths,
         prefixes,
         enhancement_enabled,
         rename_enabled,
-        num_threads
+        num_threads,
+        sort_method=args.sort,
+        enhancement_method=args.method,
+        enhancement_params=enhancement_params,
     )
     
     sys.exit(0 if success else 1)
@@ -294,12 +230,26 @@ Examples:
 
 def run_gui():
     """Launch the GUI mode."""
+    # Must run before any PyQt6 import below: PyQt6 ships stale MSVC
+    # runtime DLLs in Qt6/bin and puts that dir on the DLL search path
+    # at import, and torch's c10.dll needs a newer runtime -- importing
+    # torch afterward fails hard (WinError 1114). Loading torch first
+    # binds its runtime deps to System32's current copies instead. See
+    # gray_world.warmup(). The GUI can't know in advance
+    # whether the user will pick the Adaptive Grading method, so this
+    # always runs here -- unlike CLI mode, which only pays this cost
+    # when gray_world is actually requested (see run_cli()).
+    from src.core.gray_world import warmup as _warmup_torch
+    _warmup_torch()
+
     from PyQt6.QtWidgets import QApplication
     from src.ui.main_window import ImageProcessor
-    
+    from src.ui.theme import apply_theme
+
     app = QApplication(sys.argv)
     app.setStyle('Fusion')  # Modern look
-    
+    apply_theme(app)  # Dark, glass-inspired theme
+
     window = ImageProcessor()
     window.show()
     

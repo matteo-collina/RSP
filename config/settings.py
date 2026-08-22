@@ -5,6 +5,7 @@ Application configuration and constants.
 import os
 import sys
 import multiprocessing
+from datetime import date
 
 def get_resource_path(relative_path):
     """Get absolute path to resource, works for dev and PyInstaller."""
@@ -19,9 +20,38 @@ def get_resource_path(relative_path):
 
 # Application metadata
 APP_NAME = "RSP Image Processor"
-APP_VERSION = "0.2.1-dev"
-APP_DATE = "July 2025"
+APP_VERSION = "1.0.0"
+APP_DATE = "August 2026"
 CONTACT_EMAIL = "matteo.collina@vuw.ac.nz"
+APP_AUTHOR = "Matteo Collina"
+APP_ORGANIZATION = "Victoria University of Wellington"
+APP_BUNDLE_ID = "nz.ac.vuw.seammetry.rsp"
+
+# Single source for the copyright line, stamped with the year the build is
+# produced: build.py writes it into the Windows version resource and rsp.spec
+# writes it into the macOS Info.plist, so the two platforms can't drift.
+APP_COPYRIGHT = f"Copyright © {date.today().year} {APP_AUTHOR}"
+
+
+def _numeric_version(version):
+    """Reduce APP_VERSION to the forms the two installers' metadata accept.
+
+    Neither platform takes a suffix like "-dev": a Windows version resource
+    needs four integers, and macOS requires CFBundleShortVersionString to be
+    period-separated integers. Returns ("0.2.1", (0, 2, 1, 0)) for "0.2.1-dev".
+    """
+    import re
+
+    match = re.match(r"\d+(?:\.\d+)*", version)
+    parts = [int(p) for p in match.group(0).split(".")] if match else [0]
+    # macOS accepts at most three components, Windows needs exactly four.
+    return (".".join(str(p) for p in parts[:3]),
+            tuple((parts + [0, 0, 0, 0])[:4]))
+
+
+# APP_VERSION keeps the human-readable form ("0.2.1-dev"); these two are what
+# the packaged metadata uses.
+APP_VERSION_NUMERIC, APP_VERSION_TUPLE = _numeric_version(APP_VERSION)
 
 # File handling
 VALID_IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif'}
@@ -82,11 +112,9 @@ UNIVERSITY_LOGO = os.path.join(ASSETS_DIR, "university_logo.png")
 GOPRO_QR_CODE = os.path.join(ASSETS_DIR, "gopro_qr_code.png")
 
 # UI settings
-WINDOW_WIDTH = 550
+WINDOW_WIDTH = 1200
 WINDOW_HEIGHT = 800
 LEFT_PANEL_WIDTH = 400
-IMAGE_PREVIEW_MIN_WIDTH = 600
-IMAGE_PREVIEW_MIN_HEIGHT = 400
 
 # Documentation URL
 DOCUMENTATION_URL = "https://www.google.com"

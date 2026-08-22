@@ -1,5 +1,6 @@
 name: rsp
 channels:
+  - pytorch
   - conda-forge
   - defaults
 dependencies:
@@ -7,6 +8,8 @@ dependencies:
   - numpy>=1.21.0
   - opencv>=4.7.0
   - pillow>=9.0.0
+  - pytorch::pytorch>=2.0.0
+  - pytorch::cpuonly
   - pip
   - pip:
     - PyQt6>=6.4.0

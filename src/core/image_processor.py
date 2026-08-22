@@ -4,68 +4,29 @@ Core image processing functionality.
 
 import os
 import cv2
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from PIL import Image
-from src.core.image_enhancement import apply_clahe_enhancement
+from src.core.image_enhancement import get_enhancement_function
 from src.core.file_manager import FileManager
 
 
 class ImageProcessor:
     """Handles individual image processing operations."""
-    
+
     @staticmethod
     def is_valid_image_file(filename):
         """Check if file is a valid image file."""
         return FileManager.is_valid_image_file(filename)
-    
+
     @staticmethod
-    def process_images_multithreaded(image_paths, num_threads, progress_callback=None):
-        """
-        Process multiple images with enhancement using multiple threads.
-        
+    def process_single_image(image_path, method="clahe", params=None):
+        """Process a single image with enhancement.
+
         Args:
-            image_paths: List of image file paths to process
-            num_threads: Number of worker threads
-            progress_callback: Optional callback function(current, total, success, message)
-        
-        Returns:
-            Tuple (successful_count, failed_count)
+            image_path: Path to the source image.
+            method: Registry key from image_enhancement.ENHANCEMENT_METHODS.
+            params: Optional dict of method-specific parameters; missing
+                ones fall back to that method's own defaults.
         """
-        successful = 0
-        failed = 0
-        total = len(image_paths)
-        current = 0
-        
-        with ThreadPoolExecutor(max_workers=num_threads) as executor:
-            future_to_image = {
-                executor.submit(ImageProcessor.process_single_image, image_path): image_path 
-                for image_path in image_paths
-            }
-            
-            for future in as_completed(future_to_image):
-                image_path = future_to_image[future]
-                current += 1
-                
-                try:
-                    success, message = future.result()
-                    if success:
-                        successful += 1
-                    else:
-                        failed += 1
-                    
-                    if progress_callback:
-                        progress_callback(current, total, success, message)
-                        
-                except Exception as e:
-                    failed += 1
-                    if progress_callback:
-                        progress_callback(current, total, False, f"Exception: {str(e)}")
-        
-        return successful, failed
-    
-    @staticmethod
-    def process_single_image(image_path):
-        """Process a single image with enhancement."""
         try:
             # Validate file
             if not os.path.exists(image_path):
@@ -87,7 +48,8 @@ class ImageProcessor:
             os.makedirs(enhanced_folder, exist_ok=True)
             
             # Apply enhancement
-            enhanced_img = apply_clahe_enhancement(img)
+            enhancement_fn = get_enhancement_function(method)
+            enhanced_img = enhancement_fn(img, **(params or {}))
             output_name = os.path.splitext(os.path.basename(image_path))[0] + '.jpg'
             output_path = os.path.join(enhanced_folder, output_name)
             

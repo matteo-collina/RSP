@@ -7,10 +7,14 @@ RSP is a comprehensive toolkit designed to streamline the capture and processing
 ***
 
 ## Main Features:
-- Automatic GoPro Setting for Photogrammetry
-- Dataset Managment
-- Image Enhancment 
-- Accurate 3D modeling scaling
+
+- **Automatic GoPro setup for photogrammetry** — Labs QR code and sync script, no manual configuration
+- **Dataset management** — up to 3 cameras, EXIF / filename / modification-time ordering, safe batch renaming, multithreaded processing
+- **Image enhancement** — CLAHE *(officially supported)* and Adaptive Grading *(beta)*
+- **Desktop GUI** — dark theme, folder gallery, drag-and-drop, before/after compare viewer with live parameter preview
+- **Full CLI parity** — every GUI run can be reproduced from the command line, and the saved processing report contains the exact equivalent command
+- **Accurate 3D model scaling** — Metashape scripts, no physical scalebars needed
+- **Standalone builds** for Windows and macOS *(see [INSTALL.md](INSTALL.md))*
 
 ***
 
@@ -52,19 +56,82 @@ python rsp.py [CLI options]      # Run CLI mode (any arguments)
 python rsp.py
 ```
 
-**CLI Mode:** Use command-line arguments for automated batch processing:
+The interface lets you drag and drop the camera folders, browse the dataset in a
+built-in gallery, and compare the original and enhanced version of any image
+side by side before committing to a full run. When the processing is done you
+can save a report of the session, which includes the equivalent CLI command so
+the same run can be reproduced or scripted later.
+
+**CLI Mode:** Any command-line argument switches to CLI mode for automated batch
+processing:
 ```bash
 python rsp.py --left /path/to/left --right /path/to/right --prefix1 "dive1" --rename true --enhance true
 ```
 
 Available CLI options:
-- `--prefix1/2/3`: Add prefixes for file naming
-- `--thread`: Number of processing threads (or "auto" for optimal, unlimited max)  
-- `--center/left/right`: Paths to image directories
-- `--rename true/false`: Whether to rename files with prefixes
-- `--enhance true/false`: Whether to apply image enhancement
+
+| Option | Values | Default |
+| --- | --- | --- |
+| `--center` / `--left` / `--right` | Path to a camera's image directory | — *(at least one required)* |
+| `--prefix1` / `--prefix2` / `--prefix3` | Text prefixes for file naming | *(empty)* |
+| `--thread` | Number of processing threads (minimum 1, no upper limit), or `auto` | `auto` |
+| `--rename` | `true` / `false` — rename files with the prefixes | `true` |
+| `--enhance` | `true` / `false` — apply image enhancement | `false` |
+| `--sort` | `exif` / `filename` / `mtime` — image order before renaming | `exif` |
+| `--method` | `clahe` / `gray_world` *(beta)* — enhancement method | `clahe` |
+| `--param KEY=VALUE` | Override one enhancement parameter, repeatable | *(method defaults)* |
+| `--help` | Show the full option list and exit | — |
+
+At least one of `--rename` and `--enhance` must be `true`. `--param` keys are
+validated against the chosen `--method`, and accept numbers only: for
+`gray_world` these are `gray_world`, `warmth`, `tint`, `saturation`,
+`blue_reduction`, `brightness`, `contrast`, `shadows`, `blacks`, `highlights`
+and `dehaze_strength`, while `clahe`'s `clip_limit` can be set this way but its
+`tile_grid_size` cannot, since it is a pair rather than a single number.
+
+```bash
+# Rename only, in alphabetical order instead of by camera timestamp
+python rsp.py --left ./left --right ./right --prefix1 "2026-03-14" --prefix2 "reef" --sort filename
+
+# Rename and enhance with the supported CLAHE method, on 8 threads
+python rsp.py --left ./left --right ./right --prefix1 "dive1" --thread 8 --enhance true
+
+# Enhance only, using the beta Adaptive Grading method with a custom saturation
+python rsp.py --center ./center --rename false --enhance true --method gray_world --param saturation=1.3
+```
+
+The full command-line reference lives in [CLI_USAGE.md](CLI_USAGE.md).
 
 IMAGE
+
+#### Image Enhancement Methods
+
+Two methods are available, both in the GUI and through `--method`:
+
+**CLAHE** *(default, officially supported)* — Contrast Limited Adaptive
+Histogram Equalization, applied per channel. This is the method we recommend and
+the one to use for anything you intend to publish.
+
+**Adaptive Grading** *(`gray_world`) — ⚠️ BETA* — A colour-correction pipeline
+for underwater imagery: gray-world white balance, warmth and tint, saturation,
+blue-cast reduction, brightness and contrast, shadow, black and highlight
+recovery, and dehazing. It implements the same method used by
+[Wildflow.ai](https://wildflow.ai) and is compatible with it — with thanks to
+Sergei Nozdrenkov (wildflow.ai), whose
+[gist](https://gist.github.com/nozdrenkov/e3aece3dd78489fb7862ea2bbdef0e65) this
+port follows. It runs on PyTorch and automatically uses an NVIDIA GPU (CUDA),
+Apple Silicon (Metal) or the CPU, whichever is available — the GUI shows which
+device was detected. Every parameter is exposed as a slider with live preview in
+the compare viewer.
+
+**This method is in beta and under active development. Its output has not yet
+been validated for scientific use, and its parameters and defaults may still
+change. Use CLAHE for any work you intend to publish.** It also requires PyTorch,
+which on Windows and Linux pulls a multi-gigabyte CUDA build by default — see
+[INSTALL.md](INSTALL.md) for the much smaller CPU-only alternative.
+
+In both cases the original pictures are never modified: enhanced images are
+written to an `Enhanced` folder inside the dataset.
 
 ### 4. RSP Agisoft Metashape Pro Script
 
@@ -86,7 +153,7 @@ IMAGE
 *Please refere to the [GoPro Labs website](https://community.gopro.com/s/article/GoPro-Labs?language=en_US) on how to install the firmware on your GoPros. It requires to download and copy a zip file in your micro-sd and reboot the camera.*
 
 ### Manage the Data
-When downloading the JPEGs from the SD cards, divide the dataset in three folder named center, left, right containing center, left and right camera dataset *(remove any pictures which is not part of the acquisition)*. In the Data Manager software, set up to 3 prefixes (we recommend date,divesite, dive), and specify the path of the folders. You can also decide to apply an image enhancment algorithm. If you check this option, a new panel will open and you can check how the algorithm perform on your dataset. If you are happy with the result, you can process the images.
+When downloading the JPEGs from the SD cards, divide the dataset in three folder named center, left, right containing center, left and right camera dataset *(remove any pictures which is not part of the acquisition)*. In the Data Manager software, set up to 3 prefixes (we recommend date,divesite, dive), and specify the path of the folders (you can also drag and drop them straight onto the interface). By default the images are ordered by the camera timestamp stored in their EXIF data, but you can also sort them by filename or by file modification time. You can also decide to apply an image enhancment algorithm. If you check this option, a new panel will open and you can check how the algorithm perform on your dataset in the before/after compare viewer, adjusting its parameters until you are happy with the result. Then you can process the images.
 
 **NB: During the process the original pictures will get renamed, but the raw data will never be modified. Image enhanced pictures will get saved in a "Enhanced" folder inside the original dataset, so you can always reverse back to non-enhanced images or perform your own enhancment.**
 
@@ -117,6 +184,8 @@ The dataset contains:
 **Testing:** Manon Broadribb Payne, Miriam Pierotti
 
 **Supervsion**: Prof. James J. Bell
+
+**Acknowledgements:** Our thanks to Sergei Nozdrenkov ([wildflow.ai](https://wildflow.ai)) for the gray-world underwater colour-correction method that our Adaptive Grading is built on and stays compatible with, published as an open [gist](https://gist.github.com/nozdrenkov/e3aece3dd78489fb7862ea2bbdef0e65).
 
 *A [Te Herenga Waka - Victoria University of Wellington](https://www.vuw.ac.nz) Project, Developed by [Seammetry](https://www.seammetry.org).*
 
