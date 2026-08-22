@@ -102,8 +102,6 @@ python rsp.py --center ./center --rename false --enhance true --method gray_worl
 
 The full command-line reference lives in [CLI_USAGE.md](CLI_USAGE.md).
 
-IMAGE
-
 #### Image Enhancement Methods
 
 Two methods are available, both in the GUI and through `--method`:
