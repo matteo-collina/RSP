@@ -14,7 +14,7 @@ RSP is a comprehensive toolkit designed to streamline the capture and processing
 - **Desktop GUI** — dark theme, folder gallery, drag-and-drop, before/after compare viewer with live parameter preview
 - **Full CLI parity** — every GUI run can be reproduced from the command line, and the saved processing report contains the exact equivalent command
 - **Accurate 3D model scaling** — Metashape scripts, no physical scalebars needed
-- **Standalone builds** for Windows and macOS *(see [INSTALL.md](INSTALL.md))*
+- **Standalone builds** for Windows and macOS — download them from the [Releases page](https://github.com/matteo-collina/RSP/releases), or run from source *(see [INSTALL.md](INSTALL.md))*
 
 ***
 

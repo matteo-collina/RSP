@@ -54,6 +54,3 @@ pip install torch --index-url https://download.pytorch.org/whl/cpu
 python rsp.py              # GUI mode (no arguments)  
 python rsp.py --help       # CLI mode help
 ```
-```
-
-
