@@ -117,7 +117,7 @@ WINDOW_HEIGHT = 800
 LEFT_PANEL_WIDTH = 400
 
 # Documentation URL
-DOCUMENTATION_URL = "https://www.google.com"
+DOCUMENTATION_URL = "https://www.github.com/matteo-collina/RSP"
 
 # About text
 ABOUT_TEXT = """RSP Image Processor

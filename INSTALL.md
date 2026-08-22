@@ -42,7 +42,7 @@ conda env update -f environment.yml --prune
 pip install -r requirements.txt
 ```
 This pulls PyTorch's default wheel for your platform, which on Windows/Linux
-is typically the CUDA build (multiple GB). If you don't have an NVIDIA GPU
+is typically the CUDA build. If you don't have an NVIDIA GPU
 (or don't want CUDA installed), install the much smaller CPU-only build
 instead, before or after the step above:
 ```bash
@@ -54,17 +54,6 @@ pip install torch --index-url https://download.pytorch.org/whl/cpu
 python rsp.py              # GUI mode (no arguments)  
 python rsp.py --help       # CLI mode help
 ```
-
-## Building a standalone application
-
-`build.py` drives PyInstaller through `rsp.spec` and produces a self-contained
-application for whichever platform you run it on. Cross-compiling is not
-possible: build the Windows executable on Windows, the macOS app on a Mac.
-All bundle metadata (name, version, copyright) comes from `config/settings.py`.
-
-```bash
-pip install pyinstaller
-python build.py
 ```
 
 
