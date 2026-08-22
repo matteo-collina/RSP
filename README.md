@@ -187,6 +187,6 @@ The dataset contains:
 
 *A [Te Herenga Waka - Victoria University of Wellington](https://www.vuw.ac.nz) Project, Developed by [Seammetry](https://www.seammetry.org).*
 
-If you are using this software for your research, please consider to cite:
+**If you are using this software for your research, please consider to cite:**
 
 Collina, M., Pierotti, M., Broadribb, M. et al. RSP: a reef stereo photogrammetry toolkit for time and cost-effective underwater 3D reconstruction. Coral Reefs (2026). https://doi.org/10.1007/s00338-026-02947-3
