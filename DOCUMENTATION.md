@@ -146,7 +146,8 @@ The script inspects the aligned chunk and reports on the stereo pairs it finds: 
 
 Export the camera reference data from Metashape and save it as a plain text file, for example `references.txt`.
 
-- Use the export dialog shown below ![Export Reference](documentation/export.png).
+- Use the export dialog shown below
+  ![Export Reference](documentation/export.png).
 - Match the settings shown in the image below **exactly**. The parser in `stereo_calibration.py` expects a specific column order and delimiter, and a file exported with different settings will either fail to load or, worse, load with columns transposed.
 ![Export Settings](/documentation/export_settings.png)
 
