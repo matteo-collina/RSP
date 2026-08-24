@@ -7,8 +7,8 @@ This document is the official documentation for RSP.
 ---
 
 ## Contents
-- [GoPro Setup]() - *MISSING - REFER TO [ARTICLE](https://doi.org/10.1007/s00338-026-02947-3)*
-- [RSP Image Processor]() - *MISSING - [ARTICLE](https://doi.org/10.1007/s00338-026-02947-3)*
+- [GoPro Setup]() - *MISSING (REFER TO [ARTICLE](https://doi.org/10.1007/s00338-026-02947-3))*
+- [RSP Image Processor]() - *MISSING (REFER TO [ARTICLE](https://doi.org/10.1007/s00338-026-02947-3))*
 - [Stereo Baseline Calibration](#stereo-baseline-calibration)
   - [What calibration does and why it is needed](#what-calibration-does-and-why-it-is-needed)
   - [Requirements](#requirements)
