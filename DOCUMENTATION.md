@@ -35,8 +35,6 @@ This guide describes how to calibrate the stereo baseline of an RSP camera rig a
 
 The calibration is currently a multi-step manual procedure that combines the RSP data manager with a set of Python scripts run inside Agisoft Metashape Pro. A Metashape plugin that automates the whole sequence is in development; see [Roadmap](#roadmap).
 
-> **Placeholders.** Items marked `TODO` need to be confirmed or completed before publishing. Screenshots referenced below should be added to `docs/img/`.
-
 ---
 
 ### What calibration does and why it is needed
