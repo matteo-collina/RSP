@@ -26,14 +26,12 @@ RSP is composed of 4 elements:
 
 1. A GoPros array *(up to 3 supported)*
 2. A GoPros Sync script
-3. A data manager and Image Enhancement software (GUI and CLI)
+3. RSP Image Processor - A Data Manager and Image Enhancement software (GUI and CLI)
 4. A series of Metashape scripts to scale the model
 
 ### 1. GoPros Array
 
-The GoPros array can be easily crafted using rod-rails used in video-production, few rod-rails connectors and camera mounts. The rig has to contain at least 2 GoPros, but the Data Manager can handle up to 3 (check below).
-
-IMAGE
+The GoPros array can be easily crafted using rod-rails used in video-production, few rod-rails connectors and camera mounts. The rig has to contain at least 2 GoPros, but the Data Manager can handle up to 3.
 
 ### 2. GoPro Sync script
 
@@ -41,9 +39,9 @@ The GoPro sync script needs to be executed in all the GoPros of the array and ke
 
 ![GoPro Shacking Action](documentation/gopro_shake.gif)
 
-### 3. RSP Data Manager software
+### 3. RSP Image Processor software
 
-When you download the images on your computer, just copy the file from each GoPro in different folders (for instance "left" and "right"). Data Manager will organize the dataset, improve the image quality and prepare the dataset to be processed in Agisoft Metashape Pro.
+When you download the images on your computer, just copy the file from each GoPro in different folders (for instance "left" and "right"). RSP Image Processor will organize the dataset, improve the image quality and prepare the dataset to be processed in Agisoft Metashape Pro.
 
 **Easy Usage:** 
 ```bash
@@ -160,7 +158,7 @@ After the Alignment of the images in Agisoft Metashape Pro, run the script provi
 
 **Your model is now scaled and optimized, ready for further development!**
 
-*For more detailed information about the usage please check our [Documention](link).*
+> *For more detailed information about the usage please check our [Documention](DOCUMENTATION.md).*
 
 *******
 
@@ -189,4 +187,4 @@ The dataset contains:
 
 If you are using this software for your research, please consider to cite:
 
-Collina, M., Pierotti, M., Broadribb, M. et al. RSP: a reef stereo photogrammetry toolkit for time and cost-effective underwater 3D reconstruction. Coral Reefs (2026). https://doi.org/10.1007/s00338-026-02947-3
+`Collina, M., Pierotti, M., Broadribb, M. et al. RSP: a reef stereo photogrammetry toolkit for time and cost-effective underwater 3D reconstruction. Coral Reefs (2026). https://doi.org/10.1007/s00338-026-02947-3`
