@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: Please cite the following works when using this software.
+preferred-citation:
+  abstract: "<jats:title>Abstract</jats:title>\n                  <jats:p>\n                    Photogrammetry has emerged as an important tool for underwater reef monitoring and addressing a wide range of research questions. However, these methodologies are typically labour-intensive and demand specialized expertise in survey techniques, image processing workflows, and three-dimensional modelling pipelines, frequently limiting the development of accurately scaled models. We introduce RSP (Reef Stereo Photogrammetry), an open-source toolkit designed to facilitate the creation of scaled 3D models for large-scale underwater reef areas without scalebars. RSP features a user-friendly interface comprising four primary components: 1) GoPro synchronization scripts; 2) an image processing application for batch organization and picture enhancement; 3) Agisoft Metashape Pro integration scripts for automatic scaling; and 4) calibration scripts to establish camera-to-camera distance. Our tool supports multi-threaded processing and employs Contrast Limited Adaptive Histogram Equalization to enhance underwater image colours and details. RSP reduces survey and image processing time compared to manual workflows while improving image quality for 3D reconstruction. The stereo calibration workflow allows precise distance measurements, ensuring accurate models with scaling errors of &lt; 0.002\_m over areas exceeding 400\_m\n                    <jats:sup>2</jats:sup>\n                    . The toolkit efficiently processes images from consumer-grade cameras, including GoPro systems commonly used for marine research. RSP facilitates broader application of underwater photogrammetry by providing fast, cost-effective, and user-friendly tools requiring minimal training, suitable where small scaling errors do not compromise survey objectives. The open-source nature and graphical user interface make photogrammetry accessible to citizen scientists, students, and researchers in developing regions where expensive tools may be prohibitive for including photogrammetry in benthic surveys.\n                  </jats:p>"
+  authors:
+    - family-names: Collina
+      given-names: Matteo
+    - family-names: Pierotti
+      given-names: Miriam
+    - family-names: Broadribb
+      given-names: Manon
+    - family-names: Bell
+      given-names: James J.
+  doi: 10.1007/s00338-026-02947-3
+  identifiers:
+    - type: doi
+      value: 10.1007/s00338-026-02947-3
+    - type: url
+      value: http://dx.doi.org/10.1007/s00338-026-02947-3
+    - type: other
+      value: urn:issn:0722-4028
+  title: >-
+    RSP: a reef stereo photogrammetry toolkit for time and cost-effective
+    underwater 3D reconstruction
+  url: http://dx.doi.org/10.1007/s00338-026-02947-3
+  database: Crossref
+  date-published: 2026-08-22
+  year: 2026
+  month: 8
+  issn: 0722-4028
+  journal: Coral Reefs
+  languages:
+    - en
+  publisher:
+    name: Springer Science and Business Media LLC
+  type: article
