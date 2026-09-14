@@ -1,5 +1,18 @@
+<div align="center">
+
 # **RSP**
-# *A Reef Stereo Photogrammetry toolkit for Underwater 3D Reconstruction*
+
+## *A Reef Stereo Photogrammetry toolkit for Underwater 3D Reconstruction*
+
+[![Paper](https://img.shields.io/static/v1?label=Paper&message=Springer&color=5B6F9A&logo=springer&logoColor=white)](https://doi.org/10.1007/s00338-026-02947-3)
+[![Code](https://img.shields.io/static/v1?label=Code&message=GitHub&color=333333&logo=github&logoColor=white)](https://github.com/matteo-collina/RSP)
+[![License](https://img.shields.io/static/v1?label=License&message=GPL--3.0&color=438A68&logo=gnu&logoColor=white)](LICENSE)
+
+</div>
+
+<p align="center">
+  <img src="assets/teaser.gif" width="100%" alt="RSP">
+</p>
 
 ## Introduction
 RSP is a comprehensive toolkit designed to streamline the capture and processing of large-scale reef photogrammetry data using cheap hardware. By leveraging dual stereo cameras and an integrated workflow of software and scripts, RSP enables users to create accurate, scaled photogrammetric models of vast underwater scenes without the need for traditional scalebars. Tailored for those with little to no experience in photogrammetry, this user-friendly system automates the process, allowing for rapid generation of detailed previews of large reef environments. Whether for scientific research, conservation efforts, or underwater exploration, RSP simplifies and accelerates the production of high-quality, immersive 3D models of marine ecosystems.
