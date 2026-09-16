@@ -24,6 +24,7 @@ This document is the official documentation for RSP.
 - [Scale a 3D reconstruction](#scale-a-3d-reconstruction)
   - [Apply the baseline with stereo_scale.py](#apply-the-baseline-with-stereo_scalepy)
 - [When to recalibrate](#when-to-recalibrate)
+- [Roadmap: the RSP Metashape plugin](#roadmap-the-rsp-metashape-plugin)
 - [Troubleshooting]() - *TO BE WRITTEN*
 - [Frequent Asked Questions]() - *TO BE WRITTEN*
 
@@ -33,7 +34,7 @@ This document is the official documentation for RSP.
 
 This guide describes how to calibrate the stereo baseline of an RSP camera rig and how to apply the resulting value when scaling reconstructions.
 
-The calibration is currently a multi-step manual procedure that combines the RSP data manager with a set of Python scripts run inside Agisoft Metashape Pro. A Metashape plugin that automates the whole sequence is in development; see [Roadmap](#roadmap).
+The calibration is currently a multi-step manual procedure that combines the RSP data manager with a set of Python scripts run inside Agisoft Metashape Pro. A Metashape plugin that automates the whole sequence is in development; see [Roadmap](#roadmap-the-rsp-metashape-plugin).
 
 ---
 
@@ -207,6 +208,19 @@ Recalibrate whenever the physical relationship between the cameras may have chan
 - periodically during long field campaigns, as a check on drift.
 
 A calibration takes about a minute of capture and a short processing run. Repeating it when in doubt costs far less than discovering afterwards that a season of surveys was scaled with a wrong value.
+
+---
+
+## Roadmap: the RSP Metashape plugin
+
+The manual, script-by-script procedure above is being replaced by a proper Metashape plugin, `scripts/rsp_plugin/`, which adds an **RSP** menu to Metashape's menu bar:
+
+- **RSP > Scaling** — the improved replacement for `stereo_scale.py`. Creates scalebars for stereo pairs, then opens a live stats panel (per-scalebar error graph, and "should exist / created / remaining" counts) with a filtering step: enter an error threshold and any scalebar with `|error| > threshold` is removed and the panel refreshes in place, repeatable.
+- **RSP > Calibration Wizard** — replaces the manual `stereo_report.py` → export → `stereo_calibration.py` round-trip described in Steps 5-9 above with one guided flow: select image folder(s), choose whether you used RSP's own printed calibration target or custom markers, detection/alignment run automatically, and the recommended baseline is computed directly from the live project and written to a calibration report in the same format described in Step 9.
+
+**Loading it today** (no installer yet — this is manual, by design, until an installer routine is added to the main RSP app): in Metashape, **Tools > Run Script...** and select `scripts/rsp_plugin_loader.py`. This registers the RSP menu for the current Metashape session; re-run it any time to reload the plugin after an update.
+
+The original scripts (`stereo_scale.py`, `stereo_report.py`, `stereo_calibration.py`) remain in `scripts/` untouched and still work standalone if you prefer them, but the documentation above will be superseded by the plugin's own in-app flow once it's had real-world testing. See `REPORT.md` at the repo root for what has been built and verified so far, and what still needs verification inside a real Metashape installation before this section is written up in full.
 
 ---
 
