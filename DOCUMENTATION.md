@@ -2,7 +2,7 @@
 
 This document is the official documentation for RSP.
 
-> **NB:** This documentation is still a work in progress. The **Image Processor** is feature-complete and documented in full in the paper, with new features implemented since such as the Image Gallery and a new color-correction method in BETA. It will documented soon here. The new **RSP Metashape Plugin** is documented below.
+> **NB:** This documentation is still a work in progress. The **Image Processor** is feature-complete and documented in full in the paper, with new features implemented since such as the Image Gallery and a new color-correction method in BETA. It will documented soon here. The new **RSP Metashape Plugin** is documented below, which allow for both the **Calibration** and the **Scaling**.
 
 ---
 
