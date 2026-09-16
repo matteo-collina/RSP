@@ -26,21 +26,21 @@ RSP is a comprehensive toolkit designed to streamline the capture and processing
 - **Image enhancement** — CLAHE *(officially supported)* and Adaptive Grading *(beta)*
 - **Desktop GUI** — dark theme, folder gallery, drag-and-drop, before/after compare viewer with live parameter preview
 - **Full CLI parity** — every GUI run can be reproduced from the command line, and the saved processing report contains the exact equivalent command
-- **Accurate 3D model scaling** — Metashape scripts, no physical scalebars needed
+- **Accurate 3D model scaling** — an in-app Metashape plugin (calibration wizard + scaling), no scalebar needed in the field.
 - **Standalone builds** for Windows and macOS — download them from the [Releases page](https://github.com/matteo-collina/RSP/releases), or run from source *(see [INSTALL.md](INSTALL.md))*
 
 ***
 
 ## Description
 
-RSP take advantage of the stereo-vision to simply the production of scaled photogrammetric model for researcher and citizien scientist using common used GoPros. After the acquisition of the picture using the settings provided, the images can be imported on the data manager software, which takes care of the organization of the dataset and can perform some basic image enhancment. Later, simply import the images in the Agisoft Metashape Pro software, align your project and run the Metashape script provided.
+RSP take advantage of the stereo-vision to simply the production of scaled photogrammetric model for researcher and citizien scientist using common used GoPros. After the acquisition of the picture using the settings provided, the images can be imported on the data manager software, which takes care of the organization of the dataset and can perform some basic image enhancment. Later, simply import the images in the Agisoft Metashape Pro software, align your project and use the RSP Metashape plugin to calibrate and scale it.
 
 RSP is composed of 4 elements:
 
 1. A GoPros array *(up to 3 supported)*
 2. A GoPros Sync script
 3. RSP Image Processor - A Data Manager and Image Enhancement software (GUI and CLI)
-4. A series of Metashape scripts to scale the model
+4. A Metashape plugin to calibrate a rig's stereo baseline and scale reconstructions
 
 ### 1. GoPros Array
 
@@ -142,9 +142,9 @@ which on Windows and Linux pulls a multi-gigabyte CUDA build by default — see
 In both cases the original pictures are never modified: enhanced images are
 written to an `Enhanced` folder inside the dataset.
 
-### 4. RSP Agisoft Metashape Pro Script
+### 4. RSP Metashape Plugin
 
-Based on the data acquired, this script will refine the alignment of your  images, and will scale the model automatically, cleaning up outliers. 
+Loaded into Agisoft Metashape Pro via **Tools > Run Script...**, the plugin adds an **RSP** menu with a guided calibration wizard and a scaling/filtering workflow, so the stereo baseline can be measured once per rig (*save the calibration file*) and then applied to every subsequent survey directly inside Metashape.
 
 ***
 
@@ -165,7 +165,7 @@ When downloading the JPEGs from the SD cards, divide the dataset in three folder
 **NB: During the process the original pictures will get renamed, but the raw data will never be modified. Image enhanced pictures will get saved in a "Enhanced" folder inside the original dataset, so you can always reverse back to non-enhanced images or perform your own enhancment.**
 
 ### Optimize the model
-After the Alignment of the images in Agisoft Metashape Pro, run the script provided. Enter the distance between the Left and Right cameras *(in meters)*, set a threashold *(in meters)* to clean the data and optimize the model.
+After the alignment of the images in Agisoft Metashape Pro, load the RSP plugin and run **RSP > Scaling**. Enter the baseline distance between the Left and Right cameras *(in meters, from calibration)*, then use the live stats panel to preview and apply an error threshold that filters out bad scalebars.
 
 **Your model is now scaled and optimized, ready for further development!**
 
@@ -186,9 +186,9 @@ The dataset contains:
 
 ## Credits
 
-**Software Development:** Matteo Collina
+**Software Development:** Dr. Matteo Collina
 
-**Testing:** Manon Broadribb Payne, Miriam Pierotti
+**Testing:** Dr. Manon Broadribb Payne, Miriam Pierotti
 
 **Supervsion**: Prof. James J. Bell
 

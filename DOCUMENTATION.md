@@ -2,13 +2,16 @@
 
 This document is the official documentation for RSP.
 
-> **Please note.** This documentation is still a work in progress. The **Image Processor** is feature-complete and documented in full. The **Metashape** side of RSP, by contrast, is undergoing a major rework that will turn it into a proper plugin. The calibration workflow described here is accurate for the current scripts, but it will change once the plugin lands, so this part of the documentation is intentionally not being maintained in the meantime. Expect the procedure below to be superseded.
+> **NB:** This documentation is still a work in progress. The **Image Processor** is feature-complete and documented in full in the paper, with new features implemented since such as the Image Gallery and a new color-correction method in BETA. It will documented soon here. The new **RSP Metashape Plugin** is documented below.
 
 ---
 
 ## Contents
 - [GoPro Setup]() - *MISSING (REFER TO [ARTICLE](https://doi.org/10.1007/s00338-026-02947-3))*
 - [RSP Image Processor]() - *MISSING (REFER TO [ARTICLE](https://doi.org/10.1007/s00338-026-02947-3))*
+- [The RSP Metashape Plugin](#the-rsp-metashape-plugin)
+  - [Loading the plugin](#loading-the-plugin)
+  - [The RSP menu](#the-rsp-menu)
 - [Stereo Baseline Calibration](#stereo-baseline-calibration)
   - [What calibration does and why it is needed](#what-calibration-does-and-why-it-is-needed)
   - [Requirements](#requirements)
@@ -16,17 +19,43 @@ This document is the official documentation for RSP.
   - [Step 2. Configure the cameras](#step-2-configure-the-cameras)
   - [Step 3. Acquire the calibration dataset](#step-3-acquire-the-calibration-dataset)
   - [Step 4. Sort and pre-process the images in RSP](#step-4-sort-and-pre-process-the-images-in-rsp)
-  - [Step 5. Build the calibration project in Metashape](#step-5-build-the-calibration-project-in-metashape)
-  - [Step 6. Run stereo_report.py](#step-6-run-stereo_reportpy)
-  - [Step 7. Export the reference file](#step-7-export-the-reference-file)
-  - [Step 8. Run stereo_calibration.py](#step-8-run-stereo_calibrationpy)
-  - [Step 9. Read the calibration report](#step-9-read-the-calibration-report)
-- [Scale a 3D reconstruction](#scale-a-3d-reconstruction)
-  - [Apply the baseline with stereo_scale.py](#apply-the-baseline-with-stereo_scalepy)
-- [When to recalibrate](#when-to-recalibrate)
-- [Roadmap: the RSP Metashape plugin](#roadmap-the-rsp-metashape-plugin)
+  - [Step 5. Run the Calibration Wizard](#step-5-run-the-calibration-wizard)
+  - [When to recalibrate](#when-to-recalibrate)
+- [Scaling and Filtering a 3D Reconstruction](#scaling-and-filtering-a-3d-reconstruction)
+  - [RSP > Scaling](#rsp--scaling)
+  - [RSP > Filter Scalebars](#rsp--filter-scalebars)
 - [Troubleshooting]() - *TO BE WRITTEN*
 - [Frequent Asked Questions]() - *TO BE WRITTEN*
+
+---
+
+## The RSP Metashape Plugin
+
+The RSP Metashape plugin adds an **RSP** menu to Agisoft Metashape, replacing the older standalone scripts described in the original paper (`stereo_scale.py`, `stereo_report.py`, `stereo_calibration.py`) with a guided, in-app workflow for calibrating a stereo rig and scaling reconstructions. The legacy scripts remain in `/archive` with the [OLD DOCUMENTATION](/archive/OLD_CALIBRATION.md) and still work if you prefer them, but __the plugin is the recommended way__ to do both from here on.
+
+Requires **Agisoft Metashape Professional** — the Standard edition cannot run Python scripts or plugins.
+
+---
+
+### Loading the plugin
+
+There is no installer yet, so the plugin is loaded manually, once per Metashape session:
+
+1. Open Metashape.
+2. **Tools > Run Script...**
+3. Select `scripts/rsp_plugin_loader.py` from this repository.
+
+An **RSP** menu appears in Metashape's menu bar.
+
+---
+
+### The RSP menu
+
+| Menu item | Purpose |
+| --- | --- |
+| **RSP > Calibration Wizard** | Guided end-to-end stereo baseline calibration — see [Stereo Baseline Calibration](#stereo-baseline-calibration). |
+| **RSP > Scaling** | Apply a known baseline to a new survey and create scalebars — see [Scaling and Filtering](#scaling-and-filtering-a-3d-reconstruction). |
+| **RSP > Filter Scalebars** | Re-open the filtering panel against scalebars that already exist in the chunk. |
 
 ---
 
@@ -34,17 +63,17 @@ This document is the official documentation for RSP.
 
 This guide describes how to calibrate the stereo baseline of an RSP camera rig and how to apply the resulting value when scaling reconstructions.
 
-The calibration is currently a multi-step manual procedure that combines the RSP data manager with a set of Python scripts run inside Agisoft Metashape Pro. A Metashape plugin that automates the whole sequence is in development; see [Roadmap](#roadmap-the-rsp-metashape-plugin).
-
 ---
 
 ### What calibration does and why it is needed
 
 A photogrammetric reconstruction built from a single moving camera is geometrically correct but dimensionless: the model has shape, but not size. Introducing a second camera at a fixed, known separation supplies that missing dimension. Every synchronised image pair observes the scene from two viewpoints whose relative distance is constant, so the reconstruction can be scaled without placing any physical reference object in the scene.
 
-The purpose of calibration is to measure that separation, the **baseline**, as accurately as possible. It is not sufficient to measure the distance between the housings with a ruler: the value that matters is the distance between the optical centres of the two lenses, which sits somewhere inside each housing and cannot be reached directly.
+The purpose of calibration is to measure the **baseline**, as accurately as possible. It is not sufficient to measure the distance between the housings with a ruler: the value that matters is the distance between the optical centres of the two lenses, which sits somewhere inside each housing and cannot be reached directly.
 
-The output is a single value in metres, together with a report describing how consistent the individual pair estimates were. That scale is then reused to scale every subsequent survey acquired with the same rig, for as long as the rig geometry is undisturbed.
+The output is a single value in metres, together with a report describing how consistent the individual pair estimates were. That scale is then reused to scale every subsequent survey acquired with the same rig, for as long as the rig geometry is undisturbed. 
+
+__PLEASE REMEMBER TO SAVE AND STORE THE CALIBRATION FILE__
 
 ---
 
@@ -53,16 +82,14 @@ The output is a single value in metres, together with a report describing how co
 **Hardware**
 
 - An RSP rig with two cameras (`left`, `right`). Three-camera rigs are supported: the third position is treated as `center`.
-- The printed scalebar sheet from `script/` (see Step 1), or your own set of coded targets with known separations.
+- The printed scalebar sheet from `scripts/` (see Step 1), or your own set of coded targets with known separations.
 - A rigid, flat surface on which to lay the targets.
 
 **Software**
 
 - Agisoft Metashape **Professional** edition. The Standard edition cannot run Python scripts and cannot be used for calibration.
 - The RSP data manager (GUI or CLI).
-- The scripts in `script/` of this repository:
-  - `stereo_report.py`
-  - `stereo_calibration.py`
+- The RSP Metashape plugin, loaded as described [above](#loading-the-plugin).
 
 **Conditions**
 
@@ -72,7 +99,7 @@ Calibration can be performed dry. In most cases a dry calibration is preferable 
 
 #### Step 1. Prepare the calibration target
 
-A printable PDF of coded markers with certified spacings is included in the `script/` folder of this repository. Print it at **100 % scale**, with any "fit to page" or "shrink to fit" option disabled, then verify one known distance with a ruler or calipers before use. 
+A printable PDF of coded markers with certified spacings is included in the `scripts/` folder of this repository. Print it at **100 % scale**, with any "fit to page" or "shrink to fit" option disabled, then verify one known distance with a ruler or calipers before use.
 
 Custom targets are equally acceptable. The only requirement is that you know the distances between markers to a precision at least as good as the accuracy you expect from the final reconstruction. Mount the sheet on foam board, acrylic, or another rigid backing: paper that curls or lifts introduces error that is difficult to detect afterwards.
 
@@ -80,10 +107,10 @@ Custom targets are equally acceptable. The only requirement is that you know the
 
 #### Step 2. Configure the cameras
 
-Scan the RSP QR configuration code with each camera. You can the QR code under `Tools/GoPro QR code` in the RSP Image Processor. This sets the capture parameters shared across the rig.
+Scan the RSP QR configuration code with each camera. You can find the QR code under `Tools/GoPro QR code` in the RSP Image Processor. This sets the capture parameters shared across the rig.
 Set the interval-shooting to 1s.
 
-**The intervalometer must be set manually on each camera. The QR code do not set it.** 
+**The intervalometer must be set manually on each camera. The QR code does not set it.**
 
 Everything else in the capture configuration is applied by the QR code and should not be changed by hand.
 
@@ -108,93 +135,39 @@ Practical guidance:
 1. Download the images from each camera into **separate folders**, one per camera position: `left`, `right`, and `center` if the rig carries three.
 2. Open RSP and import the folders, assigning each to its camera position.
 3. Set a project **prefix**. Choose something that identifies the rig and the session, for example `rigA_calib_2026-08`.
-4. Run **image processing**. It is not necessary to run the Image Enhancement if the calibration has not been performed in the water
+4. Run **image processing**. It is not necessary to run the Image Enhancement if the calibration has not been performed in the water.
 
-RSP renames every file according to the pattern below, which is what allows the downstream scripts to recognise which images belong to which camera and which images form a pair:
+RSP renames every file according to the pattern below, which is what allows the plugin to recognise which images belong to which camera and which images form a pair:
 
 ```
-<prefixs>_left_XXXX
-<prefixs>_right_XXXX
-<prefixs>_center_XXXX
+<prefix>_left_XXXX
+<prefix>_right_XXXX
+<prefix>_center_XXXX
 ```
 
 **Do not rename or reorder the outputs after this step.**
 
 ---
 
-#### Step 5. Build the calibration project in Metashape
+#### Step 5. Run the Calibration Wizard
 
-1. Create a new Metashape project and add **all** the renamed images, from every camera, into a single chunk.
-2. Detect the markers: **Tools > Markers > Detect Markers**. Confirm that the detected target type matches the printed sheet.
-3. Check the Markers pane. Every marker on the sheet should appear, and none should be duplicated or obviously misplaced. Correct any stray detections before continuing.
-4. Align the photos as you normally would for a dataset.
-5. Enter the **known distances between markers** as scale bars in the Reference pane, then click **Update**.
-6. Inspect the scale bar errors. A well-behaved calibration project shows residuals that are small and consistent; a single scale bar with an error far larger than the others usually means a mistyped distance or a mislabelled marker.
+With the plugin [loaded](#loading-the-plugin):
 
-At this point the chunk is correctly scaled in metric units and the camera positions are known. The scripts take over from here.
+1. **RSP > Calibration Wizard.**
 
----
+2. In the setup panel, browse to the **Left** and **Right** folders from Step 4 (and **Center**, if your rig has a third camera).
 
-#### Step 6. Run stereo_report.py
+3. Choose whether you used **RSP's printed calibration target** or **custom markers**. If custom, pick the marker type you used from the dropdown (circular targets, AprilTags, etc.) once detection runs.
 
-In Metashape, choose **Tools > Run Script...** and select `script/stereo_report.py`.
+4. Pick the **camera / lens model** (Frame, Fisheye, etc.) that matches your rig. This applies to every camera in the rig — a mismatched setting here will hurt alignment quality.
 
-The script inspects the aligned chunk and reports on the stereo pairs it finds: how many pairs were matched and which cameras were aligned.
+5. Click **OK**. The wizard imports the photos, applies the camera model, detects the markers, aligns the cameras, and computes the baseline directly from the aligned project.
 
----
+>If custom markers are used, after the marker detection you will be asked to enter the distance between the custom coded markers.
 
-#### Step 7. Export the reference file
+6. The results dialog shows the recommended baseline (median), the mean, standard deviation and coefficient of variation across every detected pair, and a chart of the individual estimates. A coefficient of variation under 2% is excellent; above 10% suggests recalibrating.
 
-Export the camera reference data from Metashape and save it as a plain text file, for example `references.txt`.
-
-- Use the export dialog shown below
-  
-  ![Export Reference](documentation/export.png).
-  
-- Match the settings shown in the image below **exactly**. The parser in `stereo_calibration.py` expects a specific column order and delimiter, and a file exported with different settings will either fail to load or, worse, load with columns transposed.
-
-  ![Export Settings](/documentation/export_settings.png)
-
----
-
-#### Step 8. Run stereo_calibration.py
-
-Still in Metashape, choose **Tools > Run Script...** and select `script/stereo_calibration.py`.
-
-The script prompts for two paths, in this order:
-
-1. **Input:** the reference file exported in Step 7, for example `references.txt`.
-2. **Output:** where to write the calibration results, for example `calibration.txt`.
-
-It then computes the baseline for every valid pair and derives a single recommended baseline from that distribution.
-
-When the script finishes, the recommended value is printed in a Metashape window. This is the quick answer, and it is the same value that appears in the report file.
-
----
-
-#### Step 9. Read the calibration report
-
-Open `calibration.txt`. It contains a fuller account of the calibration: summary statistics describing their spread, and the recommended baseline to adopt.
-
-Record the adopted baseline somewhere durable alongside the rig itself, together with the date and the rig identifier. It is easy to lose track of which value belongs to which rig once you are running more than one.
-
-**Calibration is now completed**
-
-## Scale a 3D reconstruction
-
-This part of the pipeline, while providing the basic functions to retrieve a scaled model, is currently under-documented. Further details will be provided in the future.
-
-### Apply the baseline with stereo_scale.py
-
-After the calibrated baseline has been retrieved, is what scales all subsequent reconstructions from that rig.
-
-For each new survey:
-
-1. Process the imagery through RSP and align it in Metashape as usual.
-2. Run **Tools > Run Script...** and select `script/stereo_scale.py`.
-3. Supply the baseline from `calibration.txt` when prompted.
-
-The script applies the known camera separation (baseline) as the scale constraint for the chunk, so no scale bars or reference objects are needed in the survey.
+7. Click **Save calibration file...** to save the report, and record the baseline value together with the rig identifier and date somewhere durable — it is easy to lose track of which value belongs to which rig once you are running more than one.
 
 ---
 
@@ -211,17 +184,38 @@ A calibration takes about a minute of capture and a short processing run. Repeat
 
 ---
 
-## Roadmap: the RSP Metashape plugin
+## Scaling and Filtering a 3D Reconstruction
 
-The manual, script-by-script procedure above is being replaced by a proper Metashape plugin, `scripts/rsp_plugin/`, which adds an **RSP** menu to Metashape's menu bar:
+Once a rig's baseline is known (see [Calibration](#stereo-baseline-calibration)), use it to scale every subsequent survey captured with that rig.
 
-- **RSP > Scaling** — the improved replacement for `stereo_scale.py`. Creates scalebars for stereo pairs, then opens a live stats panel (per-scalebar error graph, and "should exist / created / remaining" counts) with a filtering step: enter an error threshold and any scalebar with `|error| > threshold` is removed and the panel refreshes in place, repeatable.
-- **RSP > Calibration Wizard** — replaces the manual `stereo_report.py` → export → `stereo_calibration.py` round-trip described in Steps 5-9 above with one guided flow: select image folder(s), choose whether you used RSP's own printed calibration target or custom markers, detection/alignment run automatically, and the recommended baseline is computed directly from the live project and written to a calibration report in the same format described in Step 9.
-
-**Loading it today** (no installer yet — this is manual, by design, until an installer routine is added to the main RSP app): in Metashape, **Tools > Run Script...** and select `scripts/rsp_plugin_loader.py`. This registers the RSP menu for the current Metashape session; re-run it any time to reload the plugin after an update.
-
-The original scripts (`stereo_scale.py`, `stereo_report.py`, `stereo_calibration.py`) remain in `scripts/` untouched and still work standalone if you prefer them, but the documentation above will be superseded by the plugin's own in-app flow once it's had real-world testing. See `REPORT.md` at the repo root for what has been built and verified so far, and what still needs verification inside a real Metashape installation before this section is written up in full.
+Process and align the survey images in RSP and Metashape as usual, using the same `<prefix>_left/right/center_XXXX` naming convention, then use the RSP menu.
 
 ---
 
-*Last updated: `24/08/2026`*
+### RSP > Scaling
+
+1. With the aligned chunk active, **RSP > Scaling**.
+2. Enter the **baseline distance** (in metres) measured during calibration, and choose whether to optimize cameras afterwards.
+3. Click **OK**. The plugin creates a scalebar for every detected stereo pair at that baseline and updates the scene.
+
+A stats panel then opens and stays open:
+
+- **RMS, mean, standard deviation and max error** across all current scalebars.
+
+- A **per-scalebar error chart**, plotted by camera sequence, so a desync partway through the dive (the error drifting from the first camera pair to the last) is visible at a glance.
+
+- **Should exist / Created / Remaining** counts.
+
+**Filtering:** drag the dashed threshold lines on the chart (or type a value into the threshold field) to preview which scalebars would be removed — they highlight in red. Click **Apply Filter** to actually remove them and refresh the scene. 
+
+You can repeat this with different thresholds without closing the panel.
+
+---
+
+### RSP > Filter Scalebars
+
+Opens the same stats/filtering panel directly against whatever scalebars already exist in the active chunk. Use this to revisit filtering later in a session.
+
+---
+
+*Last updated: `16/09/2026`*
