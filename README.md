@@ -14,6 +14,16 @@
   <img src="assets/teaser.gif" width="100%" alt="RSP">
 </p>
 
+---
+## Updates
+
+> **16/09/2026** - **RSP PLUGIN FOR METASHAPE**
+
+You can now run the Calibration and Scaling through a nice graphic interface. We also implemented a new filtering function over the basepairs to clean-up the base-pairs.
+Look at the [DOCUMENTATION](/DOCUMENTATION.md) for the __new simplified workflow!__
+
+---
+
 ## Introduction
 RSP is a comprehensive toolkit designed to streamline the capture and processing of large-scale reef photogrammetry data using cheap hardware. By leveraging dual stereo cameras and an integrated workflow of software and scripts, RSP enables users to create accurate, scaled photogrammetric models of vast underwater scenes without the need for traditional scalebars. Tailored for those with little to no experience in photogrammetry, this user-friendly system automates the process, allowing for rapid generation of detailed previews of large reef environments. Whether for scientific research, conservation efforts, or underwater exploration, RSP simplifies and accelerates the production of high-quality, immersive 3D models of marine ecosystems.
 
