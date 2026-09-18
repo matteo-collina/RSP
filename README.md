@@ -154,7 +154,7 @@ written to an `Enhanced` folder inside the dataset.
 
 ### 4. RSP Metashape Plugin
 
-Loaded into Agisoft Metashape Pro via **Tools > Run Script...**, the plugin adds an **RSP** menu with a guided calibration wizard and a scaling/filtering workflow, so the stereo baseline can be measured once per rig (*save the calibration file*) and then applied to every subsequent survey directly inside Metashape.
+Installed into Agisoft Metashape Pro with one click from the Image Processor (**Tools > Install RSP Metashape Plugin**), or loaded manually via **Tools > Run Script...**, the plugin adds an **RSP** menu with a guided calibration wizard and a scaling/filtering workflow, so the stereo baseline can be measured once per rig (*save the calibration file*) and then applied to every subsequent survey directly inside Metashape.
 
 ***
 
@@ -175,7 +175,9 @@ When downloading the JPEGs from the SD cards, divide the dataset in three folder
 **NB: During the process the original pictures will get renamed, but the raw data will never be modified. Image enhanced pictures will get saved in a "Enhanced" folder inside the original dataset, so you can always reverse back to non-enhanced images or perform your own enhancment.**
 
 ### Optimize the model
-After the alignment of the images in Agisoft Metashape Pro, load the RSP plugin and run **RSP > Scaling**. Enter the baseline distance between the Left and Right cameras *(in meters, from calibration)*, then use the live stats panel to preview and apply an error threshold that filters out bad scalebars.
+After the alignment of the images in Agisoft Metashape Pro, run **RSP > Scaling**. Enter the baseline distance between the Left and Right cameras *(in meters, from calibration)*, then use the live stats panel to preview and apply an error threshold that filters out bad scalebars.
+
+*The RSP menu is available once the plugin is installed from RSP Image Processor (**Tools > Install RSP Metashape Plugin**) or loaded manually through **Tools > Run Script...** in Metashape; see [Installing the plugin](DOCUMENTATION.md#installing-the-plugin).*
 
 **Your model is now scaled and optimized, ready for further development!**
 

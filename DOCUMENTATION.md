@@ -10,7 +10,7 @@ This document is the official documentation for RSP.
 - [GoPro Setup]() - *MISSING (REFER TO [ARTICLE](https://doi.org/10.1007/s00338-026-02947-3))*
 - [RSP Image Processor]() - *MISSING (REFER TO [ARTICLE](https://doi.org/10.1007/s00338-026-02947-3))*
 - [The RSP Metashape Plugin](#the-rsp-metashape-plugin)
-  - [Loading the plugin](#loading-the-plugin)
+  - [Installing the plugin](#installing-the-plugin)
   - [The RSP menu](#the-rsp-menu)
 - [Stereo Baseline Calibration](#stereo-baseline-calibration)
   - [What calibration does and why it is needed](#what-calibration-does-and-why-it-is-needed)
@@ -37,15 +37,37 @@ Requires **Agisoft Metashape Professional** — the Standard edition cannot run 
 
 ---
 
-### Loading the plugin
+### Installing the plugin
 
-There is no installer yet, so the plugin is loaded manually, once per Metashape session:
+There are two ways to get the **RSP** menu into Metashape. 
+
+#### Option A: Permanent installation (recommended)
+
+1. Close Metashape.
+2. Open **RSP Image Processor** and choose **Tools > Install RSP Metashape Plugin**.
+3. Check the **Metashape scripts folder**. RSP detects your operating system and fills in Metashape Pro's startup scripts folder:
+
+   | OS | Metashape scripts folder |
+   | --- | --- |
+   | Windows | `%APPDATA%\Agisoft\Metashape Pro\scripts` (e.g. `C:\Users\YourName\AppData\Roaming\Agisoft\Metashape Pro\scripts`) |
+   | macOS | `~/Library/Application Support/Agisoft/Metashape Pro/scripts` |
+   | Linux | `~/.local/share/Agisoft/Metashape Pro/scripts` |
+
+   Use **Browse...** only if your Metashape installation keeps its scripts somewhere else.
+4. Click **Install**.
+5. Start Metashape. The **RSP** menu appears in the menu bar.
+
+- **Updating:** after updating RSP, run **Install RSP Metashape Plugin** again. It replaces the previous version of the plugin.
+
+#### Option B: Manual launch (alternative)
+
+If you prefer not to install anything, you can load the plugin by hand. This has to be repeated every time Metashape is started:
 
 1. Open Metashape.
 2. **Tools > Run Script...**
 3. Select `scripts/rsp_plugin_loader.py` from this repository.
 
-An **RSP** menu appears in Metashape's menu bar.
+An **RSP** menu appears in Metashape's menu bar until Metashape is closed. Keep `rsp_plugin_loader.py`, the `rsp_plugin` folder and `scalebars.csv` together in the `scripts` folder: the loader expects them next to it.
 
 ---
 
@@ -89,7 +111,7 @@ __PLEASE REMEMBER TO SAVE AND STORE THE CALIBRATION FILE__
 
 - Agisoft Metashape **Professional** edition. The Standard edition cannot run Python scripts and cannot be used for calibration.
 - The RSP data manager (GUI or CLI).
-- The RSP Metashape plugin, loaded as described [above](#loading-the-plugin).
+- The RSP Metashape plugin, installed or loaded as described [above](#installing-the-plugin).
 
 **Conditions**
 
@@ -151,7 +173,7 @@ RSP renames every file according to the pattern below, which is what allows the 
 
 #### Step 5. Run the Calibration Wizard
 
-With the plugin [loaded](#loading-the-plugin):
+With the plugin [loaded](#installing-the-plugin):
 
 1. **RSP > Calibration Wizard.**
 
