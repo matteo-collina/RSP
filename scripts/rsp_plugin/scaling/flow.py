@@ -64,7 +64,12 @@ def _our_scalebars(chunk, pair_keys):
 
 
 def _scalebar_error(scalebar, chunk):
-    return stats.scalebar_error(estimated_distance(scalebar, chunk), scalebar.reference.distance)
+    """Signed error, or None if the scalebar can't be measured (see
+    estimated_distance)."""
+    distance = estimated_distance(scalebar, chunk)
+    if distance is None:
+        return None
+    return stats.scalebar_error(distance, scalebar.reference.distance)
 
 
 def _sequence_index(scalebar, fallback):
@@ -76,7 +81,11 @@ def _sequence_index(scalebar, fallback):
 
 def _collect(chunk, pair_keys):
     live = _our_scalebars(chunk, pair_keys)
-    points = [(_sequence_index(sb, i), _scalebar_error(sb, chunk)) for i, sb in enumerate(live)]
+    points = []
+    for i, sb in enumerate(live):
+        error = _scalebar_error(sb, chunk)
+        if error is not None:
+            points.append((_sequence_index(sb, i), error))
     points.sort(key=lambda point: point[0])
     return live, points
 
@@ -143,7 +152,12 @@ def _open_stats_panel(chunk, pair_keys, should_exist, created):
 
     def _on_filter_requested(threshold):
         live, _points = _collect(chunk, pair_keys)
-        errors_by_index = {i: _scalebar_error(sb, chunk) for i, sb in enumerate(live)}
+        # Unmeasurable scalebars (unaligned cameras) are left alone, not removed.
+        errors_by_index = {}
+        for i, sb in enumerate(live):
+            error = _scalebar_error(sb, chunk)
+            if error is not None:
+                errors_by_index[i] = error
         _keep_indices, remove_indices = stats.filter_by_threshold(errors_by_index, threshold)
         to_remove = [live[i] for i in remove_indices]
         if to_remove:

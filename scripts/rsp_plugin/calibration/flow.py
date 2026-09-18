@@ -226,7 +226,17 @@ def run():
 
     chunk.updateTransform()
 
-    estimated_distances = [estimated_distance(scalebar, chunk) for scalebar in survey_scalebars]
+    # None = unmeasurable (an endpoint camera isn't aligned); left out of the stats.
+    estimated_distances = [
+        d for d in (estimated_distance(scalebar, chunk) for scalebar in survey_scalebars) if d is not None
+    ]
+    if not estimated_distances:
+        Metashape.app.messageBox(
+            "None of the survey scalebars could be measured (their cameras "
+            "aren't aligned). Calibration Wizard finished without a computed "
+            "baseline."
+        )
+        return
     computed_stats = stats.compute_stats(estimated_distances)
     quality_text = stats.quality_label(computed_stats.cv)
     points = list(enumerate(estimated_distances))
