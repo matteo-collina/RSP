@@ -111,6 +111,9 @@ APP_ICON = os.path.join(ASSETS_DIR, "app_icon.png")
 UNIVERSITY_LOGO = os.path.join(ASSETS_DIR, "university_logo.png")
 GOPRO_QR_CODE = os.path.join(ASSETS_DIR, "gopro_qr_code.png")
 
+# RSP Metashape plugin sources (scripts/), copied out by Tools > Install RSP Metashape Plugin
+METASHAPE_PLUGIN_SOURCE_DIR = get_resource_path("scripts")
+
 # UI settings
 WINDOW_WIDTH = 1200
 WINDOW_HEIGHT = 800

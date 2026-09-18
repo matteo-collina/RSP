@@ -72,7 +72,11 @@ torch_datas, torch_binaries, torch_hiddenimports = collect_all('torch')
 a = Analysis(
     ['rsp.py'],
     binaries=torch_binaries,
-    datas=[('assets', 'assets'), ('config', 'config'), ('src', 'src')] + torch_datas,
+    # scripts/: the Metashape plugin the Installation Wizard copies out.
+    datas=[('assets', 'assets'), ('config', 'config'), ('src', 'src'),
+           ('scripts/rsp_plugin', 'scripts/rsp_plugin'),
+           ('scripts/rsp_plugin_loader.py', 'scripts'),
+           ('scripts/scalebars.csv', 'scripts')] + torch_datas,
     hiddenimports=torch_hiddenimports,
 )
 

@@ -16,7 +16,7 @@ from src.ui.widgets import LeftPanel
 from src.ui.gallery import GalleryPanel
 from src.ui.compare_viewer import ImageViewerOverlay
 from src.ui.enhancement_panel import AdaptiveGradingPanel
-from src.ui.dialogs import AboutDialog, GoProDialog, show_message_box
+from src.ui.dialogs import AboutDialog, GoProDialog, PluginInstallDialog, show_message_box
 from src.workers.processing_thread import ImageProcessingThread
 from src.utils.ui_utils import format_time
 from src.core.dataset import DatasetState, PathsView
@@ -149,6 +149,8 @@ class ImageProcessor(QMainWindow):
         tools_menu = menubar.addMenu("Tools")
         gopro_action = tools_menu.addAction("GoPro QR Code")
         gopro_action.triggered.connect(self.show_gopro_dialog)
+        plugin_action = tools_menu.addAction("Install RSP Metashape Plugin")
+        plugin_action.triggered.connect(self.show_plugin_install_dialog)
         
         # Help menu
         help_menu = menubar.addMenu("Help")
@@ -161,6 +163,11 @@ class ImageProcessor(QMainWindow):
     def show_gopro_dialog(self):
         """Show GoPro QR code dialog."""
         dialog = GoProDialog(self)
+        dialog.exec()
+    
+    def show_plugin_install_dialog(self):
+        """Show the Install RSP Metashape Plugin dialog."""
+        dialog = PluginInstallDialog(self)
         dialog.exec()
     
     def show_about_dialog(self):
