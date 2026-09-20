@@ -19,8 +19,8 @@
 
 > **16/09/2026** - **RSP PLUGIN FOR METASHAPE**
 
-You can now run the Calibration and Scaling through a nice graphic interface. We also implemented a new filtering function over the basepairs to clean-up the base-pairs.
-Look at the [DOCUMENTATION](/DOCUMENTATION.md) for the __new simplified workflow!__
+You can now run the calibration and scaling through a clean graphical interface. We have also added a new filtering function to clean up the base pairs.
+See the [DOCUMENTATION](/DOCUMENTATION.md) for the __new simplified workflow!__
 
 ---
 
