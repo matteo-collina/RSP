@@ -333,11 +333,15 @@ def main():
         verify_signature()
         tests_passed = test_executable()
 
+        # CI has no one to ask and always wants the distributable package;
+        # every common CI provider (GitHub Actions included) sets CI=true.
+        is_ci = os.environ.get("CI", "").lower() == "true"
+
         if MACOS_APP.exists():
-            if input("\nPackage as a .dmg for distribution? (y/N): ").strip().lower() == "y":
+            if is_ci or input("\nPackage as a .dmg for distribution? (y/N): ").strip().lower() == "y":
                 create_dmg()
         elif WINDOWS_DIR.exists():
-            if input("\nPackage as a .zip for distribution? (y/N): ").strip().lower() == "y":
+            if is_ci or input("\nPackage as a .zip for distribution? (y/N): ").strip().lower() == "y":
                 create_windows_zip()
 
         if tests_passed:

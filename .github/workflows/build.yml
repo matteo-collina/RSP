@@ -1,0 +1,136 @@
+name: Build
+
+# Builds the three standalone variants (Windows CPU, Windows CUDA, macOS) via
+# build.py / rsp.spec -- the same scripts used for local builds. On a v*
+# tag push, the four jobs' outputs are attached to that tag's GitHub
+# Release (created as a draft if one doesn't already exist yet, updated in
+# place if it does -- see the v2.0.0 release, which was created by hand).
+on:
+  push:
+    branches:
+      - ci/github-actions-build
+    tags:
+      - 'v*'
+  workflow_dispatch: {}
+
+jobs:
+  windows-cpu:
+    name: Windows (CPU)
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Installing the CPU wheel before requirements.txt (which otherwise
+      # pulls PyPI's default, CUDA-enabled wheel on Windows) matches the
+      # workflow INSTALL.md documents for a CPU-only install.
+      - name: Install dependencies (CPU-only torch)
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build
+        run: python build.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RSP-windows-cpu
+          path: dist/RSP-*-windows-cpu.zip
+          if-no-files-found: error
+
+  windows-cuda:
+    name: Windows (CUDA)
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # The CUDA wheel plus the PyInstaller one-dir output plus its zip is
+      # ~10GB of transient disk, against the ~14GB standard runners
+      # guarantee free. Clear a few large preinstalled toolchains this repo
+      # never uses to make room; if this still isn't enough, the runner
+      # will need to move to a larger (paid) or self-hosted machine.
+      - name: Free disk space
+        shell: pwsh
+        run: |
+          foreach ($p in @(
+            'C:\Program Files\dotnet',
+            'C:\Program Files (x86)\Android',
+            'C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk',
+            'C:\hostedtoolcache\windows\Ruby',
+            'C:\hostedtoolcache\windows\Go'
+          )) {
+            if (Test-Path $p) { Remove-Item -Recurse -Force $p -ErrorAction SilentlyContinue }
+          }
+          Get-PSDrive C | Select-Object Used, Free
+
+      - name: Install dependencies (CUDA torch)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build
+        run: python build.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RSP-windows-cuda
+          path: dist/RSP-*-windows-cuda.zip
+          if-no-files-found: error
+
+  macos:
+    name: macOS
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      # Ad-hoc signed (no Apple Developer secrets configured here), same as
+      # a local build with no RSP_CODESIGN_IDENTITY set.
+      - name: Build
+        run: python build.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RSP-macos
+          path: dist/RSP-*.dmg
+          if-no-files-found: error
+
+  release:
+    name: Attach builds to the GitHub Release
+    needs: [windows-cpu, windows-cuda, macos]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Attach artifacts to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: artifacts/*/*
