@@ -94,12 +94,24 @@ if IS_WINDOWS:
     # Analysis-00.toc source paths and DLL version stamps: bundled 14.44/14.26
     # vs. System32's working 14.50.)
     #
-    # Fix: drop every unmangled MSVC runtime copy the analysis collected, from
-    # any source and any bundle subdirectory, then explicitly bundle the build
-    # machine's System32 copies at the root. A newer runtime satisfies every
-    # older consumer (Qt, cv2, numpy, torch); the reverse was the bug. numpy's
-    # name-mangled msvcp140-<hash>.dll is referenced by its mangled name and is
-    # left alone.
+    # Fix: repoint every unmangled MSVC runtime copy the analysis collected,
+    # wherever it was found (torch\lib, PyQt6\Qt6\bin, ...), at the build
+    # machine's newer System32 copy instead -- keeping its original
+    # destination, not collapsing everything to one location. A newer
+    # runtime satisfies every older consumer (Qt, cv2, numpy, torch); the
+    # reverse was the bug. numpy's name-mangled msvcp140-<hash>.dll is
+    # referenced by its mangled name and is left alone.
+    #
+    # Earlier versions of this fix deleted every matching entry and re-added
+    # a single copy at the collection root (dist/RSP/_internal/). That broke
+    # torch: shm.dll's own dependency search only covers its own torch\lib
+    # directory (torch adds that one via os.add_dll_directory at import
+    # time), not the collection root, so torch\lib's copy being gone made
+    # shm.dll fail to load with "WinError 126: The specified module could
+    # not be found." one-dir and onefile differ here because onefile's
+    # single flat extraction dir happened to double as that search root;
+    # one-dir's dist/RSP/_internal doesn't. Patching sources in place avoids
+    # depending on any particular directory being on the search path.
     _MSVC_RUNTIME_DLLS = {
         'msvcp140.dll',
         'msvcp140_1.dll',
@@ -111,15 +123,31 @@ if IS_WINDOWS:
         'concrt140.dll',
     }
 
-    a.binaries = [
-        entry for entry in a.binaries
-        if os.path.basename(entry[0]).lower() not in _MSVC_RUNTIME_DLLS
-    ]
-
     _system32 = os.path.join(os.environ.get('SystemRoot', r'C:\Windows'), 'System32')
+
+    def _system32_copy(name):
+        path = os.path.join(_system32, name)
+        return path if os.path.isfile(path) else None
+
+    _patched_binaries = []
+    _dests_present = set()
+    for _dest, _src, _typecode in a.binaries:
+        _base = os.path.basename(_dest).lower()
+        if _base in _MSVC_RUNTIME_DLLS:
+            _newer = _system32_copy(_base)
+            if _newer:
+                _src = _newer
+        _patched_binaries.append((_dest, _src, _typecode))
+        _dests_present.add(_dest.lower())
+    a.binaries = _patched_binaries
+
+    # Also guarantee a root-level copy, for any consumer that relies on the
+    # default search path (application directory) rather than adding its own.
     for _dll in sorted(_MSVC_RUNTIME_DLLS):
-        _src = os.path.join(_system32, _dll)
-        if os.path.isfile(_src):
+        if _dll in _dests_present:
+            continue
+        _src = _system32_copy(_dll)
+        if _src:
             a.binaries.append((_dll, _src, 'BINARY'))
     # -----------------------------------------------------------------------
 
