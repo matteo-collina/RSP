@@ -17,6 +17,10 @@
 ---
 ## Updates
 
+> **08/10/2026** - **RSP 2.0.0 RELEASED**
+
+Version 2.0.0 is out, with standalone builds for Windows *(CPU and CUDA/GPU variants)* and macOS. Grab it from the [Releases page](https://github.com/matteo-collina/RSP/releases). This version include the RSP Plugin for Metashape and the installer.
+
 > **16/09/2026** - **RSP PLUGIN FOR METASHAPE**
 
 You can now run the calibration and scaling through a clean graphical interface. We have also added a new filtering function to clean up the base pairs.
