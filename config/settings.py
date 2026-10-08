@@ -20,8 +20,8 @@ def get_resource_path(relative_path):
 
 # Application metadata
 APP_NAME = "RSP Image Processor"
-APP_VERSION = "1.0.0"
-APP_DATE = "August 2026"
+APP_VERSION = "2.0.0"
+APP_DATE = "October 2026"
 CONTACT_EMAIL = "matteo.collina@vuw.ac.nz"
 APP_AUTHOR = "Matteo Collina"
 APP_ORGANIZATION = "Victoria University of Wellington"
