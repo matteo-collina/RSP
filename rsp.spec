@@ -195,16 +195,36 @@ if IS_MACOS:
         },
     )
 else:
-    # Windows (and Linux): single-file executable.
+    # Windows (and Linux): one-dir build, same reasoning as macOS above.
+    #
+    # This used to be a onefile .exe, but onefile re-extracts its entire
+    # payload to a fresh %TEMP% dir on every launch, and the CUDA build of
+    # torch makes that payload ~4GB (cublasLt64_12.dll, cudnn*.dll,
+    # torch_cuda.dll, ... -- individually hundreds of MB each). Worse, since
+    # every launch uses a new temp directory, Windows Defender treats all of
+    # those files as never-seen-before and re-scans the lot each time instead
+    # of hitting its scan cache. Together that made the CUDA build extremely
+    # slow to open. UPX is off for the same reason: it buys little on
+    # already-dense CUDA binaries but still costs decompression time on every
+    # launch and makes heavily-packed DLLs more likely to draw extra AV
+    # scrutiny. A one-dir folder pays the extraction cost once (at install
+    # time) and Defender's cache covers unchanged files on later launches.
     exe = EXE(
         pyz,
         a.scripts,
-        a.binaries,
-        a.datas,
         [],
+        exclude_binaries=True,
         name='RSP',
-        upx=True,
+        upx=False,
         console=False,
         version=_windows_version_info() if IS_WINDOWS else None,
         icon=[os.path.join('assets', 'app_icon.png')],
+    )
+
+    coll = COLLECT(
+        exe,
+        a.binaries,
+        a.datas,
+        upx=False,
+        name='RSP',
     )

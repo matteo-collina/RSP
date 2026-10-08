@@ -2,8 +2,9 @@
 """
 RSP Build Script
 Builds the self-contained RSP application with PyInstaller via rsp.spec:
-a single-file RSP.exe on Windows, an RSP.app bundle (optionally packaged
-as a DMG) on macOS. All bundle metadata lives in config/settings.py.
+a one-dir RSP/ folder (optionally zipped) on Windows, an RSP.app bundle
+(optionally packaged as a DMG) on macOS. All bundle metadata lives in
+config/settings.py.
 """
 
 import os
@@ -23,7 +24,8 @@ IS_WINDOWS = platform.system() == "Windows"
 IS_MACOS = platform.system() == "Darwin"
 
 # Where PyInstaller leaves the finished product on each platform.
-WINDOWS_EXE = Path("dist/RSP.exe")
+WINDOWS_DIR = Path("dist/RSP")
+WINDOWS_EXE = WINDOWS_DIR / "RSP.exe"
 MACOS_APP = Path("dist/RSP.app")
 MACOS_BINARY = MACOS_APP / "Contents" / "MacOS" / "RSP"
 
@@ -272,9 +274,42 @@ def test_executable():
         print(f"⚠️  CLI test failed: {e}")
 
     # Check size of the whole deliverable, not just the launcher stub
-    target = MACOS_APP if MACOS_APP.exists() else exe_path
+    target = MACOS_APP if MACOS_APP.exists() else (WINDOWS_DIR if WINDOWS_DIR.exists() else exe_path)
     print(f"📊 {target.name} size: {directory_size_mb(target):.1f} MB")
 
+    return True
+
+def torch_variant():
+    """'cuda' or 'cpu', read from the torch actually installed in this env.
+
+    Used to name the Windows zip so the two flavors (built from separate
+    environments/venvs) don't overwrite each other in dist/.
+    """
+    import torch
+    return 'cuda' if torch.version.cuda else 'cpu'
+
+def create_windows_zip():
+    """Zip dist/RSP/ into a distributable archive.
+
+    Windows build.py produces a one-dir folder (see rsp.spec for why it's
+    no longer a single onefile .exe); zipping it is the equivalent of the
+    macOS .dmg step, for a double-click-to-extract download.
+    """
+    if not WINDOWS_DIR.exists():
+        print("❌ dist/RSP not found - nothing to package")
+        return False
+
+    print("\n📦 Creating zip archive...")
+
+    # Built as a plain string, not Path.with_suffix(".zip") -- APP_VERSION's
+    # own dots ("2.0.0") make with_suffix truncate the name at the wrong one.
+    zip_stem = f"dist/RSP-{APP_VERSION}-windows-{torch_variant()}"
+    zip_path = Path(f"{zip_stem}.zip")
+    if zip_path.exists():
+        zip_path.unlink()
+
+    shutil.make_archive(str(zip_stem), "zip", root_dir="dist", base_dir="RSP")
+    print(f"✅ Zip archive created: {zip_path} ({directory_size_mb(zip_path):.1f} MB)")
     return True
 
 def main():
@@ -301,12 +336,16 @@ def main():
         if MACOS_APP.exists():
             if input("\nPackage as a .dmg for distribution? (y/N): ").strip().lower() == "y":
                 create_dmg()
+        elif WINDOWS_DIR.exists():
+            if input("\nPackage as a .zip for distribution? (y/N): ").strip().lower() == "y":
+                create_windows_zip()
 
         if tests_passed:
             print("\n🎉 Build completed successfully!")
-            built = MACOS_APP if MACOS_APP.exists() else find_executable()
+            built = MACOS_APP if MACOS_APP.exists() else (WINDOWS_DIR if WINDOWS_DIR.exists() else find_executable())
             if built:
-                print(f"   📁 {'Application' if built == MACOS_APP else 'Executable'}: {built}")
+                label = "Application" if built == MACOS_APP else ("Folder" if built == WINDOWS_DIR else "Executable")
+                print(f"   📁 {label}: {built}")
             print("\n   Ready for distribution! 🚀")
         else:
             print("\n⚠️  Build completed but tests failed")
