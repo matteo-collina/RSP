@@ -150,8 +150,8 @@ the compare viewer.
 **This method is in beta and under active development. Its output has not yet
 been validated for scientific use, and its parameters and defaults may still
 change. Use CLAHE for any work you intend to publish.** It also requires PyTorch,
-which on Windows and Linux pulls a multi-gigabyte CUDA build by default — see
-[INSTALL.md](INSTALL.md) for the much smaller CPU-only alternative.
+which installs as a CPU-only build by default — see [INSTALL.md](INSTALL.md)
+for installing the CUDA build instead if you have an NVIDIA GPU.
 
 In both cases the original pictures are never modified: enhanced images are
 written to an `Enhanced` folder inside the dataset.

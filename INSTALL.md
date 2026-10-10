@@ -41,12 +41,11 @@ conda env update -f environment.yml --prune
 ```bash
 pip install -r requirements.txt
 ```
-This pulls PyTorch's default wheel for your platform, which on Windows/Linux
-is typically the CUDA build. If you don't have an NVIDIA GPU
-(or don't want CUDA installed), install the much smaller CPU-only build
+This pulls PyTorch's default wheel for your platform, which is CPU-only. If
+you have an NVIDIA GPU and want CUDA acceleration, install the CUDA build
 instead, before or after the step above:
 ```bash
-pip install torch --index-url https://download.pytorch.org/whl/cpu
+pip install torch --index-url https://download.pytorch.org/whl/cu128
 ```
 
 2. Run the application:
