@@ -14,6 +14,16 @@ import subprocess
 import sys
 from pathlib import Path
 
+# This script prints emoji status markers throughout. A real terminal (or a
+# CI runner configured for UTF-8) handles that fine, but Windows consoles
+# default to a legacy codepage (cp1252) that can't encode them, crashing on
+# the very first print with UnicodeEncodeError -- notably on GitHub Actions'
+# windows-latest runner. Force UTF-8 on stdout/stderr so output is correct
+# everywhere this runs instead of depending on the caller's console setup.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="backslashreplace")
+
 # Import the app's own metadata regardless of where build.py was invoked
 # from. rsp.spec loads the same module, so every name, version and copyright
 # the bundles carry has a single source.
